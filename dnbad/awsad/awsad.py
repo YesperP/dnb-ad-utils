@@ -6,9 +6,8 @@ import boto3
 from botocore.session import Session
 from dateutil import tz
 
-from common.configure import *
-from common.local_config import LocalConfig
-from common.password_manager import PasswordManager
+from dnbad.common.local_config import LocalConfig
+from dnbad.common.password_manager import PasswordManager
 from .aws_config import AwsConfig
 from .saml_login import SamlLogin, AuthConfig
 from .saml import Saml
@@ -62,7 +61,7 @@ class AwsAdLogin:
 
     def _choose_role(self, roles: List[AwsSAMLRole]) -> AwsSAMLRole:
         if len(roles) == 0:
-            raise Exception("No roles found.")
+            raise Exception("No roles found for your account.")
         elif len(roles) == 1:
             return roles[0]
 
@@ -106,7 +105,7 @@ class AwsAdLogin:
             password_manager=PasswordManager(self._local_config.username),
             tenant_id=self._aws_config.azure_tenant_id,
             app_id=self._aws_config.azure_app_id
-        ).login_sync()
+        ).login()
 
         saml_xml = Saml.response_to_xml(saml_response)
         aws_roles = self._get_aws_saml_roles(saml_xml)

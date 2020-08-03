@@ -2,8 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import *
 
-from common.azure_auth_page import *
-from common.password_manager import PasswordManager
+from dnbad.common import PasswordManager
 from pyppeteer.page import Page
 
 __all__ = ["AzureAppsFinder", "AuthConfig", "PasswordManager"]

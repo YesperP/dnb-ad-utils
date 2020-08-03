@@ -6,7 +6,7 @@ from awscli.customizations.configure.writer import ConfigFileWriter
 from botocore.exceptions import ProfileNotFound
 from botocore.session import Session
 
-from common.exceptions import DnbException
+from dnbad.common.exceptions import DnbException
 
 __all__ = ["MissingAwsConfigException", "AwsConfig"]
 

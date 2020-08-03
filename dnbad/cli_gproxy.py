@@ -1,12 +1,13 @@
 import argparse
 import time
 
-from common import VERSION
-from . import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
-from common.password_manager import PasswordManager
-from common.local_config import LocalConfig
-from .configure import configure
-from .gproxy import GProxy, GProxyError, AuthConfig
+from dnbad.common import VERSION
+from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
+from dnbad.common.password_manager import PasswordManager
+from dnbad.common.local_config import LocalConfig
+from dnbad.gproxy.configure import configure
+from dnbad.gproxy.gproxy import GProxy, GProxyError
+from dnbad.common.azure_auth_page import AuthConfig
 
 
 class NoConfigError(Exception):
@@ -27,9 +28,7 @@ def _main() -> [int, None]:
     subparsers = parser.add_subparsers(dest="cmd")
 
     p_login = subparsers.add_parser("connect")
-    p_login.add_argument("-n", "--no-headless", help="Login to Azure AD in non-headless mode", action="store_true")
-    p_login.add_argument("-d", "--debug", help="Debug mode", action="store_true")
-    p_login.add_argument("-c", "--clean", help="Login without using cookies", action="store_true")
+    AuthConfig.add_arguments_to_parser(p_login)
 
     subparsers.add_parser("off")
     subparsers.add_parser("configure")
@@ -66,13 +65,7 @@ def connect(args):
     if connected:
         print("Already connected.")
     else:
-        azure_ad_config = AuthConfig(
-            headless=not args.no_headless,
-            use_cookies=not args.clean,
-            dump_io=args.debug
-        )
-
-        g_proxy.connect(PasswordManager(config.username), azure_ad_config)
+        g_proxy.connect(PasswordManager(config.username), AuthConfig.from_args(args))
         connected = g_proxy.is_connected()
         if connected:
             print(f"You can now connect to {BIND_ADDRESS} through the proxy.")
@@ -119,3 +112,7 @@ def on():
                 print(f"An error occurred when connecting:\n {str(e)}")
 
         time.sleep(PERSIST_POLL_TIME if connected else PERSIST_RETRY_TIME)
+
+
+if __name__ == '__main__':
+    main()

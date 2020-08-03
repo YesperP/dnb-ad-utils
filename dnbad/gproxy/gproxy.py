@@ -3,10 +3,11 @@ import subprocess
 
 import pexpect
 
-from common.local_config import LocalConfig
-from common.password_manager import PasswordManager
-from gproxy.gproxy_ad_login import AuthConfig, GProxyAdLogin
-from gproxy.ssh_config import SSHConfig
+from dnbad.common.azure_auth_page import AuthConfig
+from dnbad.common.local_config import LocalConfig
+from dnbad.common.password_manager import PasswordManager
+from dnbad.gproxy.ssh_config import SSHConfig
+from .gproxy_ad_login import GProxyAdLogin
 from . import *
 from .util import check_host
 
@@ -41,7 +42,6 @@ class GProxy:
         if self.is_connected():
             return
 
-        print(self._connect_args())
         p = pexpect.spawn("ssh", self._connect_args(), encoding="utf-8")
         i = p.expect([pexpect.EOF, "authenticate."])
 
@@ -54,13 +54,13 @@ class GProxy:
         url = self._extract_url(p.before)
         print(f"Code: {code}, Url: {url}")
 
-        if url != AzureGProxyLogin.URL:
-            raise GProxyError(f"Url does not match expected login-url. !={AzureGProxyLogin.URL}")
+        if url != GProxyAdLogin.URL:
+            raise GProxyError(f"Url does not match expected login-url. !={GProxyAdLogin.URL}")
 
-        AzureGProxyLogin(
+        GProxyAdLogin(
             code=code,
             password_manager=password_manager,
-            azure_config=azure_ad_config
+            config=azure_ad_config
         ).login_sync()
 
         p.expect(pexpect.EOF, timeout=30)

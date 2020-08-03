@@ -2,9 +2,9 @@ import asyncio
 
 from pyppeteer.page import Page
 
-from common.azure_auth_handler import AzureAuthHandler, AuthState
-from common.azure_auth_page import *
-from common.password_manager import PasswordManager
+from dnbad.common.azure_auth_handler import AzureAuthHandler, AuthState
+from dnbad.common.password_manager import PasswordManager
+from dnbad.common.azure_auth_page import AuthConfig, AuthPage
 
 
 class GProxyAdLogin(AzureAuthHandler):

@@ -4,10 +4,11 @@ from urllib.parse import parse_qs
 
 from pyppeteer.network_manager import Request
 
-from common.azure_auth_page import *
-from common.password_manager import PasswordManager
+from dnbad.common.azure_auth_handler import AzureAuthHandler
+from dnbad.common.password_manager import PasswordManager
+from dnbad.common.azure_auth_config import AuthConfig
+from dnbad.common.azure_auth_page import AuthPage
 from .saml import Saml
-from common.azure_auth_handler import AzureAuthHandler
 
 
 @dataclass
@@ -17,10 +18,10 @@ class SamlLogin:
     tenant_id: str
     app_id: str
 
-    def login_sync(self) -> str:
-        return asyncio.get_event_loop().run_until_complete(self.login())
+    def login(self) -> str:
+        return asyncio.get_event_loop().run_until_complete(self._login())
 
-    async def login(self) -> str:
+    async def _login(self) -> str:
         auth_page = AuthPage(
             auth_handler=AzureAuthHandler(self.password_manager),
             config=self.auth_config

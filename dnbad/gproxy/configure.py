@@ -1,8 +1,7 @@
 import os
 from os import path
 
-from common import PROJECT_ROOT
-from common.configure import *
+from dnbad.common import *
 from . import *
 from .ssh_config import SSHConfig
 from .util import show_line_diff
@@ -19,7 +18,7 @@ def configure():
         local_config.gproxy_port = DEFAULT_PROXY_PORT
 
     header("GProxy Prerequisites")
-    with open(path.join(PROJECT_ROOT, "prerequisites.txt")) as f:
+    with open(path.join(PROJECT_ROOT, "gproxy_prerequisites.txt")) as f:
         print(f.read())
 
     header("GProxy Connection")

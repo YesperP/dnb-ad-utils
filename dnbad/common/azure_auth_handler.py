@@ -9,9 +9,9 @@ from typing import *
 from pyppeteer.errors import TimeoutError as PypTimeoutError
 from pyppeteer.page import Page
 
-from common import DATA_ROOT
-from common.exceptions import DnbException
-from common.password_manager import PasswordManager
+from dnbad.common import DATA_ROOT
+from dnbad.common.exceptions import DnbException
+from dnbad.common.password_manager import PasswordManager
 
 __all__ = ["MfaExpiredException", "AuthState", "AzureAuthHandler"]
 

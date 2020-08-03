@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from os import path
 from typing import *
 
-from common.exceptions import DnbException
+from dnbad.common.exceptions import DnbException
 from . import DATA_ROOT, create_data_root
 
 

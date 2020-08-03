@@ -4,10 +4,10 @@ import traceback
 
 from botocore.session import Session
 
-from awsad.awsad import AwsAdLogin, AuthConfig
-from awsad.configure import AWSAdConfigure
-from common import VERSION
-from common.exceptions import DnbException
+from dnbad.awsad.awsad import AwsAdLogin, AuthConfig
+from dnbad.awsad.configure import AWSAdConfigure
+from dnbad.common import VERSION
+from dnbad.common.exceptions import DnbException
 
 
 # noinspection PyBroadException
@@ -61,3 +61,7 @@ def _main(args):
         )
     elif args.cmd == "list":
         print(f"AWS Profiles:\n{AWSAdConfigure.list_profiles()}")
+
+
+if __name__ == '__main__':
+    main()
