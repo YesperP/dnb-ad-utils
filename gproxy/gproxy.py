@@ -5,7 +5,7 @@ import pexpect
 
 from common.local_config import LocalConfig
 from common.password_manager import PasswordManager
-from gproxy.azure_ad import AzureGProxyLogin, AzureAdConfig
+from gproxy.gproxy_ad_login import AuthConfig, GProxyAdLogin
 from gproxy.ssh_config import SSHConfig
 from . import *
 from .util import check_host
@@ -36,7 +36,7 @@ class GProxy:
             self._host()
         ]
 
-    def connect(self, password_manager: PasswordManager, azure_ad_config: AzureAdConfig):
+    def connect(self, password_manager: PasswordManager, azure_ad_config: AuthConfig):
 
         if self.is_connected():
             return

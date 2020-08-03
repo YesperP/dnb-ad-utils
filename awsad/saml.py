@@ -21,8 +21,8 @@ class Saml:
     SAML_COMPLETE_URL = 'https://signin.aws.amazon.com/saml'
     _SAML_ATTR_NS = "{urn:oasis:names:tc:SAML:2.0:assertion}"
 
-    @staticmethod
-    def response_to_xml(saml_response: str):
+    @classmethod
+    def response_to_xml(cls, saml_response: str):
         decoded = base64.b64decode(saml_response)
         return ElementTree.XML(decoded)
 

@@ -6,7 +6,7 @@ from . import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
 from common.password_manager import PasswordManager
 from common.local_config import LocalConfig
 from .configure import configure
-from .gproxy import GProxy, GProxyError, AzureAdConfig
+from .gproxy import GProxy, GProxyError, AuthConfig
 
 
 class NoConfigError(Exception):
@@ -66,7 +66,7 @@ def connect(args):
     if connected:
         print("Already connected.")
     else:
-        azure_ad_config = AzureAdConfig(
+        azure_ad_config = AuthConfig(
             headless=not args.no_headless,
             use_cookies=not args.clean,
             dump_io=args.debug
@@ -99,7 +99,7 @@ def disconnect() -> bool:
 def on():
     config = get_config()
     g_proxy = GProxy(config)
-    ad_config = AzureAdConfig(
+    ad_config = AuthConfig(
         headless=False,
         use_cookies=True,
         dump_io=False

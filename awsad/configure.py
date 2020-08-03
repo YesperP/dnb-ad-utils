@@ -38,7 +38,8 @@ class AWSAdConfigure:
 
     def configure(
             self,
-            profile: Optional[str] = None
+            auth_config: AuthConfig,
+            profile: Optional[str]
     ):
         # Do general configuration:
         general_config()
@@ -59,7 +60,6 @@ class AWSAdConfigure:
                 aws_session_duration=None,
                 aws_default_role_arn=None,
 
-                aws_role_arn=None,
                 aws_access_key_id=None,
                 aws_secret_access_key=None,
                 aws_session_token=None
@@ -68,9 +68,9 @@ class AWSAdConfigure:
         # App:
         if config.azure_tenant_id and config.azure_app_id and config.azure_app_title:
             if yes_no(f"Do you want to change aws account from '{config.azure_app_title}'?", default=False):
-                self._choose_app(config)
+                self._choose_app(config, auth_config)
         else:
-            self._choose_app(config)
+            self._choose_app(config, auth_config)
 
         config.aws_default_role_arn = get_input(
             "Default Role Arn",
@@ -82,21 +82,17 @@ class AWSAdConfigure:
         header("AwsAd Configuration Completed")
         print("You may run the configuration again at any time.")
 
-    def _choose_app(self, config: AwsConfig):
+    def _choose_app(self, aws_config: AwsConfig, auth_config: AuthConfig):
         print("Finding aws accounts...")
         apps = AzureAppsFinder(
             password_manager=PasswordManager(LocalConfig.load().username),
-            azure_config=AzureAdConfig(
-                headless=True,
-                use_cookies=True,
-                dump_io=False
-            )
+            config=auth_config
         ).find_apps_sync()
 
         app_titles = [app.title for app in apps]
         print(f"We have found the following aws accounts:\n{self._format_list(app_titles)}")
         app_title = get_input("Pick aws account", hint="", allowed_values=app_titles)
         app = max(apps, key=lambda a: a.title == app_title)
-        config.azure_app_title = app.title
-        config.azure_app_id = app.app_id
-        config.azure_tenant_id = app.tenant_id
+        aws_config.azure_app_title = app.title
+        aws_config.azure_app_id = app.app_id
+        aws_config.azure_tenant_id = app.tenant_id

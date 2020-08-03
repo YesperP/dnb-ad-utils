@@ -10,7 +10,7 @@ from common.configure import *
 from common.local_config import LocalConfig
 from common.password_manager import PasswordManager
 from .aws_config import AwsConfig
-from .azure_ad import AzureAwsLogin, AzureAdConfig
+from .saml_login import SamlLogin, AuthConfig
 from .saml import Saml
 
 
@@ -100,14 +100,13 @@ class AwsAdLogin:
             DurationSeconds=session_duration
         )["Credentials"]
 
-    def login(self, azure_config: AzureAdConfig):
-        saml_response = AzureAwsLogin(
+    def login(self, auth_config: AuthConfig):
+        saml_response = SamlLogin(
+            auth_config=auth_config,
             password_manager=PasswordManager(self._local_config.username),
-            config=azure_config
-        ).login_sync(
             tenant_id=self._aws_config.azure_tenant_id,
             app_id=self._aws_config.azure_app_id
-        )
+        ).login_sync()
 
         saml_xml = Saml.response_to_xml(saml_response)
         aws_roles = self._get_aws_saml_roles(saml_xml)
