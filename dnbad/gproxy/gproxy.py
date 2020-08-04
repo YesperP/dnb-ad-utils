@@ -2,13 +2,13 @@ import re
 import subprocess
 
 import pexpect
+from sshconf import read_ssh_config
 
 from dnbad.common.azure_auth_page import AuthConfig
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from dnbad.gproxy.ssh_config import SSHConfig
-from .gproxy_ad_login import GProxyAdLogin
 from . import *
+from .gproxy_ad_login import GProxyAdLogin
 from .util import check_host
 
 
@@ -20,9 +20,9 @@ class GProxy:
 
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
-        ssh_config = SSHConfig.load_from_file()
-        self.forward_hostname = ssh_config.get_line(BIND_ADDRESS, "Hostname").val
-        self.forward_port = ssh_config.get_line(BIND_ADDRESS, "Port").val
+        ssh_config = read_ssh_config(SSH_CONFIG_PATH)
+        self.forward_hostname = ssh_config.host(BIND_ADDRESS)["hostname"]
+        self.forward_port = ssh_config.host(BIND_ADDRESS)["port"]
 
     def _host(self):
         return f"ssh://{SSH_USER}@{self.config.gproxy_hostname}:{self.config.gproxy_port}"

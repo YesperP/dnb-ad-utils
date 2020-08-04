@@ -6,14 +6,13 @@ with open("README.md", "r") as fh:
 setup(
     name='dnb-ad-utils',
     version='0.1.1',
-    url='https://github.com/piontas/python-aada',
     license='MIT',
     author="Jesper Pedersen",
     author_email='jes.ped.til@gmail.com',
     description='Login to AWS and BitBucket through Azure Active Directory',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=[
         "botocore~=1.17.33",

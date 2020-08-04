@@ -1,10 +1,10 @@
 import os
 from os import path
 
-from dnbad.common import *
+from dnbad.common.configure import *
 from . import *
-from .ssh_config import SSHConfig
 from .util import show_line_diff
+from sshconf import read_ssh_config, SshConfig, empty_ssh_config_file
 
 
 def configure():
@@ -18,7 +18,7 @@ def configure():
         local_config.gproxy_port = DEFAULT_PROXY_PORT
 
     header("GProxy Prerequisites")
-    with open(path.join(PROJECT_ROOT, "gproxy_prerequisites.txt")) as f:
+    with open(path.join(path.dirname(__file__), "prerequisites.txt")) as f:
         print(f.read())
 
     header("GProxy Connection")
@@ -35,26 +35,41 @@ def configure():
     print("You may run the configuration again at any time.")
 
 
-def _configure_openssh():
+def _configure_openssh() -> SshConfig:
     header("GProxy OpenSSH config")
-    new_ssh_config = SSHConfig.load_from_file()
-    for key, val in DEFAULT_BIT_BUCKET_HOST.items():
-        if new_ssh_config.get_line(BIND_ADDRESS, key) is None:
-            new_ssh_config.set_value(BIND_ADDRESS, key, val)
+    host_name = BIND_ADDRESS
 
-    ssh_config = SSHConfig.load_from_file()
-    if ssh_config != new_ssh_config:
-        print(f"Some changes are needed for your ssh config file ({SSH_CONFIG_PATH}).")
-        if yes_no("Do you want to look at the changes?", default=True):
-            show_line_diff([line.to_line() for line in ssh_config.lines()],
-                           [line.to_line() for line in new_ssh_config.lines()])
-        if yes_no("Do you want to make these changes?"):
-            new_ssh_config.write()
-            ssh_config = new_ssh_config
+    if os.path.exists(SSH_CONFIG_PATH):
+        new_config = read_ssh_config(SSH_CONFIG_PATH)
+
+        for key, val in DEFAULT_BIT_BUCKET_HOST.items():
+            new_config.set(host_name, **{key: val})
+        new_config_str = new_config.config()
+
+        ssh_config = read_ssh_config(SSH_CONFIG_PATH)
+        ssh_config_str = ssh_config.config()
+
+        if new_config_str != ssh_config_str:
+            print(f"Some changes are needed for your ssh config file ({SSH_CONFIG_PATH}).")
+            if yes_no("Do you want to look at the changes?", default=True):
+                show_line_diff(
+                    old=ssh_config_str.split("\n"),
+                    new=new_config_str.split("\n")
+                )
+            if yes_no("Do you want us to make these changes?", default=True):
+                new_config.write(SSH_CONFIG_PATH)
+                ssh_config = new_config
+        else:
+            print("Your SSH config file is already configured correctly. No changes needed.")
     else:
-        print("Your SSH config file is already configured correctly. No changes needed.")
+        ssh_config = empty_ssh_config_file()
+        for key, val in DEFAULT_BIT_BUCKET_HOST.items():
+            ssh_config.set(host_name, **{key: val})
+        print(f"No ssh config found at {SSH_CONFIG_PATH}")
+        if yes_no("Do you want us to create the file?", default=True):
+            ssh_config.write(SSH_CONFIG_PATH)
 
-    return ssh_config.get_config()
+    return ssh_config
 
 
 def _create_control_socket_dir(control_path):

@@ -1,7 +1,12 @@
 import getpass
 
-import keyring
-import keyring.errors
+try:
+    import keyring
+    import keyring.errors
+    KEYRING = True
+except ImportError:
+    keyring = None
+    KEYRING = False
 
 
 class PasswordManager:
@@ -11,6 +16,10 @@ class PasswordManager:
         self.username = username
         self.use_keyring = use_keyring
         self._password = None
+
+    @classmethod
+    def is_keyring_available(cls) -> bool:
+        return KEYRING
 
     def is_keyring_set(self):
         return keyring.get_password(self.SERVICE_NAME, self.username) is not None
