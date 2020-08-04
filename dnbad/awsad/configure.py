@@ -2,9 +2,12 @@ from typing import *
 
 from botocore.session import Session
 
-from dnbad.common.local_config import LocalConfig
-from .aws_config import AwsConfig, MissingAwsConfigException
 from dnbad.common.azure_auth_config import AuthConfig
+from dnbad.common.configure import *
+from dnbad.common.local_config import LocalConfig
+from dnbad.common.password_manager import PasswordManager
+from .aws_config import AwsConfig, MissingAwsConfigException
+from .find_apps import AzureAppsFinder
 
 __all__ = ["AWSAdConfigure"]
 

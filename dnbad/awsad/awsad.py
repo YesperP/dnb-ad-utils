@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import *
 from xml.etree import ElementTree
@@ -9,8 +10,10 @@ from dateutil import tz
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
 from .aws_config import AwsConfig
-from .saml_login import SamlLogin, AuthConfig
 from .saml import Saml
+from .saml_login import SamlLogin, AuthConfig
+
+LOG = logging.getLogger(__name__)
 
 
 @dataclass
@@ -106,6 +109,7 @@ class AwsAdLogin:
             tenant_id=self._aws_config.azure_tenant_id,
             app_id=self._aws_config.azure_app_id
         ).login()
+        LOG.info("SAML Response retrieved")
 
         saml_xml = Saml.response_to_xml(saml_response)
         aws_roles = self._get_aws_saml_roles(saml_xml)

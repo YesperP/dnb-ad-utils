@@ -91,7 +91,7 @@ class AzureAuthHandler:
                     timeout=timeout * 1000 if timeout else None
                 )
                 heading = await page.evaluate('(e) => e.textContent', evt)
-                LOG.info(f"## Header: {heading}")
+                LOG.info(f"## AuthHeader: {heading}")
 
                 state = AuthState.find(heading, states)
                 if state is None:
@@ -117,12 +117,12 @@ class AzureAuthHandler:
             await self._submit_value(page, "input[name=passwd]", self.password_manager.get_password())
             LOG.info("Password submitted")
         elif s is self.STATE_MFA:
-            print("Approve the sign-in request on your phone...")
+            LOG.info("Approve the sign-in request on your phone...")
         elif s is self.STATE_PWD_UPDATE:
-            print(f"Your password needs to be updated. Login to {self.password_manager.username} in your browser.")
+            LOG.warning(f"Your password needs to be updated. Login to {self.password_manager.username} in your browser.")
         elif s is self.STATE_OTC_CODE:
             await self._submit_value(page, "input[name=otc]", self.password_manager.ask_for_otc())
-            print("One-time-code submitted")
+            LOG.info("One-time-code submitted")
 
     def _on_timeout(self, state: AuthState, heading: str):
         if state is self.STATE_PWD:
@@ -150,11 +150,11 @@ class AzureAuthHandler:
                      for c in cookies if c["name"] not in self.IGNORE_COOKIE_NAMES]
             if len(tasks) > 0:
                 await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-            LOG.info(f"Cookies for {self.password_manager.username} loaded.")
+            LOG.debug(f"Cookies for {self.password_manager.username} loaded.")
         else:
             LOG.info(f"Cookies for {self.password_manager.username} not yet existing.")
 
     async def save_cookies(self, page: Page):
         with open(self.cookie_path, mode="w") as f:
             json.dump(await page.cookies(), f)
-        LOG.info(f"Cookies for {self.password_manager.username} saved.")
+        LOG.debug(f"Cookies for {self.password_manager.username} saved.")

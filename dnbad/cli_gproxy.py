@@ -1,54 +1,51 @@
-import argparse
 import time
 
-from dnbad.common import VERSION
-from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
-from dnbad.common.password_manager import PasswordManager
+from dnbad.common.azure_auth_page import AuthConfig
+from dnbad.common.cli_base import *
 from dnbad.common.local_config import LocalConfig
+from dnbad.common.password_manager import PasswordManager
+from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
 from dnbad.gproxy.configure import configure
 from dnbad.gproxy.gproxy import GProxy, GProxyError
-from dnbad.common.azure_auth_page import AuthConfig
+import logging
+
+
+LOG = logging.getLogger(__name__)
+
+
+def main() -> int:
+    return GProxyCli().handle()
+
+
+class GProxyCli(CliBase):
+    def __init__(self):
+        super().__init__(
+            "gproxy",
+            "GitProxy SSH login with Azure AD"
+        )
+        p_login = self.add_cmd("connect", help="Establish connection")
+        AuthConfig.add_arguments_to_parser(p_login)
+
+        self.add_cmd("off", help="Tear down connection")
+        self.add_cmd("configure", help="Configure")
+        self.add_cmd("status", help="Check connection status")
+        self.add_cmd("on", help="Keep connection")
+
+    def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
+        if cmd == "connect":
+            return connect(args)
+        elif cmd == "status":
+            return status()
+        elif cmd == "off":
+            return disconnect()
+        elif cmd == "configure":
+            configure()
+        elif cmd == "on":
+            on()
 
 
 class NoConfigError(Exception):
     msg = "GProxy is not configured. Please run 'gproxy configure' first."
-
-
-def main() -> [int, None]:
-    success = _main()
-    return 0 if success else 1
-
-
-def _main() -> [int, None]:
-    parser = argparse.ArgumentParser(
-        prog="gproxy",
-        description="GitProxy SSH login with Azure AD"
-    )
-    parser.add_argument("-v", "--version", action="version", version=VERSION)
-    subparsers = parser.add_subparsers(dest="cmd")
-
-    p_login = subparsers.add_parser("connect")
-    AuthConfig.add_arguments_to_parser(p_login)
-
-    subparsers.add_parser("off")
-    subparsers.add_parser("configure")
-    subparsers.add_parser("status")
-    subparsers.add_parser("on")
-
-    args = parser.parse_args()
-
-    if args.cmd is None:
-        parser.print_help()
-    elif args.cmd == "connect":
-        return connect(args)
-    elif args.cmd == "status":
-        return status()
-    elif args.cmd == "off":
-        return disconnect()
-    elif args.cmd == "configure":
-        configure()
-    elif args.cmd == "on":
-        on()
 
 
 def get_config() -> LocalConfig:
@@ -106,11 +103,11 @@ def on():
         conn_conn = g_proxy.is_connected_connection()
         connected = conn_ctl and conn_conn
         if not connected:
-            print(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
+            LOG.info(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
             try:
                 g_proxy.connect(password_manager, ad_config)
             except GProxyError as e:
-                print(f"An error occurred when connecting:\n {str(e)}")
+                LOG.warning(f"An error occurred when connecting:\n {str(e)}")
 
         time.sleep(PERSIST_POLL_TIME if connected else PERSIST_RETRY_TIME)
 

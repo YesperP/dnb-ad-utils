@@ -1,66 +1,42 @@
-import argparse
-import sys
-import traceback
+from typing import *
 
 from botocore.session import Session
 
 from dnbad.awsad.awsad import AwsAdLogin, AuthConfig
 from dnbad.awsad.configure import AWSAdConfigure
-from dnbad.common import VERSION
-from dnbad.common.exceptions import DnbException
+from dnbad.common.cli_base import CliBase, Namespace
 
 
-# noinspection PyBroadException
-def main() -> [int, None]:
-    parser = argparse.ArgumentParser(
-        prog="awsad",
-        description="AWS Login with Azure AD"
-    )
-    parser.add_argument("-v", "--version", action="version", version=VERSION)
-    subparsers = parser.add_subparsers(dest="cmd")
-
-    p_login = subparsers.add_parser("login")
-    AuthConfig.add_arguments_to_parser(p_login)
-
-    p_configure = subparsers.add_parser("configure")
-    AuthConfig.add_arguments_to_parser(p_configure)
-
-    subparsers.add_parser("list")
-
-    args = parser.parse_args()
-
-    if args.cmd is None:
-        parser.print_help()
-        return 1
-
-    try:
-        _main(args)
-        return 0
-    except DnbException as e:
-        if args.debug:
-            traceback.print_exc()
-        else:
-            print(f"\n{str(e)}", file=sys.stderr)
-    except Exception:
-        traceback.print_exc()
-    return 1
+def main() -> int:
+    return AwsAdCli().handle()
 
 
-def _main(args):
-    if args.cmd == "login":
-        session = Session(profile=args.profile)
-        AwsAdLogin(
-            session=session
-        ).login(
-            auth_config=AuthConfig.from_args(args)
-        )
-    elif args.cmd == "configure":
-        AWSAdConfigure().configure(
-            profile=args.profile,
-            auth_config=AuthConfig.from_args(args)
-        )
-    elif args.cmd == "list":
-        print(f"AWS Profiles:\n{AWSAdConfigure.list_profiles()}")
+class AwsAdCli(CliBase):
+    def __init__(self):
+        super().__init__("awsad", "AWS Login with Azure AD")
+        p_login = self.add_cmd("login", "Login and store credentials")
+        AuthConfig.add_arguments_to_parser(p_login)
+
+        p_configure = self.add_cmd("configure", "Configure a profile")
+        AuthConfig.add_arguments_to_parser(p_configure)
+
+        self.add_cmd("list", "List all AWS profiles")
+
+    def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
+        if cmd == "login":
+            return AwsAdLogin(
+                session=Session(profile=args.profile)
+            ).login(
+                auth_config=AuthConfig.from_args(args)
+            )
+        elif args.cmd == "configure":
+            return AWSAdConfigure().configure(
+                profile=args.profile,
+                auth_config=AuthConfig.from_args(args)
+            )
+        elif args.cmd == "list":
+            print(f"AWS Profiles:\n{AWSAdConfigure.list_profiles()}")
+            return True
 
 
 if __name__ == '__main__':

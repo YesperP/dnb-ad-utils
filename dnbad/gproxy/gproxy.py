@@ -1,3 +1,4 @@
+import logging
 import re
 import subprocess
 
@@ -10,6 +11,8 @@ from dnbad.common.password_manager import PasswordManager
 from . import *
 from .gproxy_ad_login import GProxyAdLogin
 from .util import check_host
+
+LOG = logging.getLogger(__name__)
 
 
 class GProxyError(Exception):
@@ -53,7 +56,7 @@ class GProxy:
 
         code = self._extract_code(p.before)
         url = self._extract_url(p.before)
-        print(f"Code: {code}, Url: {url}")
+        LOG.info(f"GProxy OTC Code: {code}, Url: {url}")
 
         if url != GProxyAdLogin.URL:
             raise GProxyError(f"Url does not match expected login-url. !={GProxyAdLogin.URL}")

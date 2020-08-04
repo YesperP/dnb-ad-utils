@@ -1,10 +1,13 @@
 import asyncio
+import logging
 
 from pyppeteer.page import Page
 
 from dnbad.common.azure_auth_handler import AzureAuthHandler, AuthState
-from dnbad.common.password_manager import PasswordManager
 from dnbad.common.azure_auth_page import AuthConfig, AuthPage
+from dnbad.common.password_manager import PasswordManager
+
+LOG = logging.getLogger(__name__)
 
 
 class GProxyAdLogin(AzureAuthHandler):
@@ -34,4 +37,4 @@ class GProxyAdLogin(AzureAuthHandler):
         else:
             await self._submit_value(page, "input[name=otc]", self.code)
             self.code_submitted = True
-            print("GProxy code submitted")
+            LOG.info("GProxy code submitted")
