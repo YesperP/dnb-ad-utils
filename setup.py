@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dnb-ad-utils',
-    version='0.1.1',
+    version='0.1.2',
     license='MIT',
     author="Jesper Pedersen",
     author_email='jes.ped.til@gmail.com',
@@ -22,6 +22,7 @@ setup(
         "awscli",
         "pexpect",
         "setuptools",
+        "sshconf"
     ],
     extras_require={
         'keyring': ['keyring']
