@@ -20,15 +20,15 @@ def show_line_diff(old: List[str], new: List[str]):
         print(f_str.format("X" if left_line != right_line else " ", left_line, right_line))
 
 
+# noinspection PyBroadException
 def check_host(hostname: str, port: int):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # noinspection PyBroadException
     try:
         s.settimeout(1)
         s.connect((hostname, port))
         s.shutdown(socket.SHUT_RDWR)
         return True
-    except:
+    except Exception:
         return False
     finally:
         s.close()

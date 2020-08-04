@@ -20,6 +20,7 @@ class GProxy:
 
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
+
         ssh_config = read_ssh_config(SSH_CONFIG_PATH)
         self.forward_hostname = ssh_config.host(BIND_ADDRESS)["hostname"]
         self.forward_port = ssh_config.host(BIND_ADDRESS)["port"]

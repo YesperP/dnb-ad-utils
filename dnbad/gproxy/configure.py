@@ -1,10 +1,11 @@
 import os
 from os import path
 
+from sshconf import read_ssh_config, empty_ssh_config_file
+
 from dnbad.common.configure import *
 from . import *
 from .util import show_line_diff
-from sshconf import read_ssh_config, SshConfig, empty_ssh_config_file
 
 
 def configure():
@@ -35,30 +36,30 @@ def configure():
     print("You may run the configuration again at any time.")
 
 
-def _configure_openssh() -> SshConfig:
+def _configure_openssh():
     header("GProxy OpenSSH config")
     host_name = BIND_ADDRESS
 
     if os.path.exists(SSH_CONFIG_PATH):
-        new_config = read_ssh_config(SSH_CONFIG_PATH)
 
+        # Create a compliant config:
+        new_config = read_ssh_config(SSH_CONFIG_PATH)
         for key, val in DEFAULT_BIT_BUCKET_HOST.items():
             new_config.set(host_name, **{key: val})
         new_config_str = new_config.config()
 
-        ssh_config = read_ssh_config(SSH_CONFIG_PATH)
-        ssh_config_str = ssh_config.config()
+        # Old config:
+        old_config_str = read_ssh_config(SSH_CONFIG_PATH).config()
 
-        if new_config_str != ssh_config_str:
+        if new_config_str != old_config_str:
             print(f"Some changes are needed for your ssh config file ({SSH_CONFIG_PATH}).")
             if yes_no("Do you want to look at the changes?", default=True):
                 show_line_diff(
-                    old=ssh_config_str.split("\n"),
+                    old=old_config_str.split("\n"),
                     new=new_config_str.split("\n")
                 )
             if yes_no("Do you want us to make these changes?", default=True):
-                new_config.write(SSH_CONFIG_PATH)
-                ssh_config = new_config
+                new_config.save(SSH_CONFIG_PATH)
         else:
             print("Your SSH config file is already configured correctly. No changes needed.")
     else:
@@ -68,8 +69,6 @@ def _configure_openssh() -> SshConfig:
         print(f"No ssh config found at {SSH_CONFIG_PATH}")
         if yes_no("Do you want us to create the file?", default=True):
             ssh_config.write(SSH_CONFIG_PATH)
-
-    return ssh_config
 
 
 def _create_control_socket_dir(control_path):
