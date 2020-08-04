@@ -93,9 +93,10 @@ def on():
     config = get_config()
     g_proxy = GProxy(config)
     ad_config = AuthConfig(
-        headless=False,
+        headless=True,
         use_cookies=True,
-        dump_io=False
+        dump_io=False,
+        keep_open=False
     )
     password_manager = PasswordManager(config.username)
     password_manager.get_password()
