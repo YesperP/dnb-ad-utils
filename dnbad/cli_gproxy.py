@@ -5,7 +5,7 @@ from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.cli_base import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
+from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_HOST
 from dnbad.gproxy.configure import configure
 from dnbad.gproxy.gproxy import GProxy, GProxyError
 
@@ -22,16 +22,16 @@ class GProxyCli(CliBase):
             "gproxy",
             "GitProxy SSH login with Azure AD"
         )
-        p_login = self.add_cmd("connect", help="Establish connection")
+        p_login = self.add_cmd("on", help="Establish connection")
         AuthConfig.add_arguments_to_parser(p_login)
 
         self.add_cmd("off", help="Tear down connection")
         self.add_cmd("configure", help="Configure")
         self.add_cmd("status", help="Check connection status")
-        self.add_cmd("on", help="Keep connection")
+        self.add_cmd("persist", help="Polls status and reconnects if connection drops.")
 
     def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
-        if cmd == "connect":
+        if cmd == "on":
             return connect(args)
         elif cmd == "status":
             return status()
@@ -39,8 +39,8 @@ class GProxyCli(CliBase):
             return disconnect()
         elif cmd == "configure":
             configure()
-        elif cmd == "on":
-            on()
+        elif cmd == "persist":
+            persist()
 
 
 class NoConfigError(Exception):
@@ -64,28 +64,26 @@ def connect(args):
         g_proxy.connect(PasswordManager(config.username), AuthConfig.from_args(args))
         connected = g_proxy.is_connected()
         if connected:
-            print(f"You can now connect to {BIND_ADDRESS} through the proxy.")
+            print(f"You can now connect to {BIND_HOST} through the proxy.")
         else:
             print("Something went wrong and the connection could not be established.")
 
 
 def status() -> bool:
-    g_proxy = GProxy(get_config())
-    conn_ctl = g_proxy.is_connected_ctl()
-    conn_conn = g_proxy.is_connected_connection()
-    connected = conn_ctl and conn_conn
-    print(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
+    connected = GProxy.is_connected()
+    print(f"Connected: {connected}")
     return connected
 
 
 def disconnect() -> bool:
     g_proxy = GProxy(get_config())
     g_proxy.disconnect()
-    print(f"Connected: {g_proxy.is_connected()}")
-    return not g_proxy.is_connected()
+    connected = g_proxy.is_connected()
+    print(f"Could not disconnect." if connected else "Successfully disconnected.")
+    return not connected
 
 
-def on():
+def persist():
     config = get_config()
     g_proxy = GProxy(config)
     ad_config = AuthConfig(
@@ -95,17 +93,19 @@ def on():
         keep_open=False
     )
     password_manager = PasswordManager(config.username)
-    password_manager.get_password()
+    password_manager.fetch_password()
+
+    connected = g_proxy.is_connected()
+    if connected:
+        LOG.info(f"Connected: {g_proxy.is_connected()}")
 
     while True:
-        conn_ctl = g_proxy.is_connected_ctl()
-        conn_conn = g_proxy.is_connected_connection()
-        connected = conn_ctl and conn_conn
+        connected = g_proxy.is_connected()
         if not connected:
-            LOG.info(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
+            LOG.info(f"Reconnecting...")
             try:
                 g_proxy.connect(password_manager, ad_config)
-                LOG.info(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
+                LOG.info(f"Connected: {g_proxy.is_connected()}")
             except GProxyError as e:
                 LOG.warning(f"An error occurred when connecting:\n {str(e)}")
 

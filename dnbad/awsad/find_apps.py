@@ -5,8 +5,7 @@ from typing import *
 
 from pyppeteer.page import Page
 
-from dnbad.common.azure_auth import AuthConfig, AuthBrowser
-from dnbad.common.azure_auth_handler import AzureAuthHandler
+from dnbad.common.azure_auth import *
 from dnbad.common.password_manager import PasswordManager
 
 
@@ -34,8 +33,7 @@ class AzureAppsFinder:
         return asyncio.get_event_loop().run_until_complete(self.find_apps())
 
     async def find_apps(self) -> List[AdApp]:
-        async with AuthBrowser(AzureAuthHandler(self.password_manager), self.config) as browser, \
-                await browser.new_auth_page() as auth_page:
+        async with single_auth_page(AzureAuthHandler(self.password_manager), self.config) as auth_page:
             await auth_page.page.goto(self.APPS_URL)
             await auth_page.page.waitForSelector(self.APPS_SELECTOR, visible=True)
 

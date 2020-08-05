@@ -6,8 +6,10 @@ SSH_KEY_FOLDER = join(SSH_FOLDER, "key")
 
 SSH_USER = "git"
 CONTROL_SOCKETS_PATH = "~/.ssh/sockets/%r@%h:%p"
+BIND_HOST = "git.tech-01.net"
+
+FORWARD_HOST = BIND_HOST
 FORWARD_PORT = 22
-BIND_ADDRESS = "git.tech-01.net"
 
 PERSIST_POLL_TIME = 10
 PERSIST_RETRY_TIME = 30

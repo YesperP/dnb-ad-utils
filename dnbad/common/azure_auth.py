@@ -6,10 +6,11 @@ from typing import *
 
 from pyppeteer.page import Page, Request
 
+from contextlib import asynccontextmanager
 from .azure_auth_handler import *
 from .pyppeteer import PypBrowser
 
-__all__ = ["AuthPage", "AuthConfig", "AuthBrowser"]
+__all__ = ["AuthPage", "AuthConfig", "AuthBrowser", "single_auth_page", "AzureAuthHandler"]
 
 LOG = logging.getLogger(__name__)
 
@@ -85,3 +86,10 @@ class AuthBrowser(PypBrowser):
 
     async def new_auth_page(self) -> AuthPage:
         return AuthPage(await self.browser.newPage(), self.auth_handler, self.auth_config)
+
+
+@asynccontextmanager
+async def single_auth_page(auth_handler: AzureAuthHandler, config: AuthConfig):
+    """ Opens a browser and auth page """
+    async with AuthBrowser(auth_handler, config) as b, await b.new_auth_page() as p:
+        yield p

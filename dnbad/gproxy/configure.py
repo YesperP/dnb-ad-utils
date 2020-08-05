@@ -38,7 +38,7 @@ def configure():
 
 def _configure_openssh():
     header("GProxy OpenSSH config")
-    host_name = BIND_ADDRESS
+    host_name = BIND_HOST
 
     if os.path.exists(SSH_CONFIG_PATH):
 
@@ -46,10 +46,10 @@ def _configure_openssh():
         new_config = read_ssh_config(SSH_CONFIG_PATH)
         for key, val in DEFAULT_BIT_BUCKET_HOST.items():
             new_config.set(host_name, **{key: val})
-        new_config_str = new_config._config()
+        new_config_str = new_config.config()
 
         # Old config:
-        old_config_str = read_ssh_config(SSH_CONFIG_PATH)._config()
+        old_config_str = read_ssh_config(SSH_CONFIG_PATH).config()
 
         if new_config_str != old_config_str:
             print(f"Some changes are needed for your ssh config file ({SSH_CONFIG_PATH}).")

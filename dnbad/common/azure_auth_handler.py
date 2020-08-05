@@ -90,7 +90,7 @@ class AzureAuthHandler:
                     timeout=timeout * 1000 if timeout else None
                 )
                 heading = await page.evaluate('(e) => e.textContent', evt)
-                LOG.info(f"## AuthHeader: {heading}")
+                LOG.info(f"## AuthHeader: '{heading}'")
 
                 state = AuthState.find(heading, states)
                 if state is None:
