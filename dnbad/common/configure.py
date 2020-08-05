@@ -3,9 +3,7 @@ from typing import *
 from .local_config import LocalConfig, MissingLocalConfigException
 from .password_manager import PasswordManager
 
-
 __all__ = ["INPUT_NO_DEFAULT", "yes_no", "get_input", "header", "general_config"]
-
 
 INPUT_NO_DEFAULT = "//*NO_DEFAULT*//"
 

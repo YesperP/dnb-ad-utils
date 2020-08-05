@@ -1,10 +1,12 @@
+import asyncio
 import re
 from dataclasses import dataclass
 from typing import *
 
 from pyppeteer.page import Page
 
-from dnbad.common.azure_auth_page import AuthConfig
+from dnbad.common.azure_auth import AuthConfig, AuthBrowser
+from dnbad.common.azure_auth_handler import AzureAuthHandler
 from dnbad.common.password_manager import PasswordManager
 
 
@@ -32,17 +34,13 @@ class AzureAppsFinder:
         return asyncio.get_event_loop().run_until_complete(self.find_apps())
 
     async def find_apps(self) -> List[AdApp]:
-        auth_page = AuthPage(
-            auth_handler=AzureAuthHandler(self.password_manager, self.config),
-            config=self.config
-        )
-
-        async with auth_page as page:
-            await page.goto(self.APPS_URL)
-            await page.waitForSelector(self.APPS_SELECTOR, visible=True)
+        async with AuthBrowser(AzureAuthHandler(self.password_manager), self.config) as browser, \
+                await browser.new_auth_page() as auth_page:
+            await auth_page.page.goto(self.APPS_URL)
+            await auth_page.page.waitForSelector(self.APPS_SELECTOR, visible=True)
 
             # Examine app results:
-            ad_apps = await self.query_apps(page)
+            ad_apps = await self.query_apps(auth_page.page)
             aws_apps = [app for app in ad_apps if app.app_type == "aws"]
             return aws_apps
 

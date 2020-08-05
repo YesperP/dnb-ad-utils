@@ -3,6 +3,7 @@ import getpass
 try:
     import keyring
     import keyring.errors
+
     KEYRING = True
 except ImportError:
     keyring = None

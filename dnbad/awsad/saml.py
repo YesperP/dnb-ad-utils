@@ -3,9 +3,8 @@ import datetime
 import urllib.parse
 import uuid
 import zlib
-
-from xml.etree import ElementTree
 from typing import *
+from xml.etree import ElementTree
 
 
 class Saml:

@@ -1,12 +1,12 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os.path
+import random
+import string
 import sys
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
+from logging.handlers import RotatingFileHandler
 from typing import *
-import random
-import string
 
 from . import VERSION, DATA_ROOT
 
@@ -36,7 +36,7 @@ class CliBase:
 
         file_handler = RotatingFileHandler(
             filename=os.path.join(DATA_ROOT, f"{self.prog}.log"),
-            maxBytes=1*1024*1024,
+            maxBytes=1 * 1024 * 1024,
             backupCount=0
         )
         file_handler.setFormatter(logging.Formatter(fmt="%(asctime)s %(name)-35s %(levelname)-8s %(message)s"))

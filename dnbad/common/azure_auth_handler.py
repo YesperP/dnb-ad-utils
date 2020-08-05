@@ -78,7 +78,6 @@ class AzureAuthHandler:
 
     async def handle_auth(self, page: Page):
         states = self._states()
-
         heading = "**Init**"
         state = AuthState(heading)
 
@@ -119,7 +118,8 @@ class AzureAuthHandler:
         elif s is self.STATE_MFA:
             LOG.info("Approve the sign-in request on your phone...")
         elif s is self.STATE_PWD_UPDATE:
-            LOG.warning(f"Your password needs to be updated. Login to {self.password_manager.username} in your browser.")
+            LOG.warning(f"Your password needs to be updated. "
+                        f"Login to {self.password_manager.username} in your browser.")
         elif s is self.STATE_OTC_CODE:
             await self._submit_value(page, "input[name=otc]", self.password_manager.ask_for_otc())
             LOG.info("One-time-code submitted")

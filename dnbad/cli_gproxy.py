@@ -1,14 +1,13 @@
+import logging
 import time
 
-from dnbad.common.azure_auth_page import AuthConfig
+from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.cli_base import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
 from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_ADDRESS
 from dnbad.gproxy.configure import configure
 from dnbad.gproxy.gproxy import GProxy, GProxyError
-import logging
-
 
 LOG = logging.getLogger(__name__)
 
@@ -106,6 +105,7 @@ def on():
             LOG.info(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
             try:
                 g_proxy.connect(password_manager, ad_config)
+                LOG.info(f"Connected: {connected} (CTL-Socket: {conn_ctl}, Connection: {conn_conn})")
             except GProxyError as e:
                 LOG.warning(f"An error occurred when connecting:\n {str(e)}")
 

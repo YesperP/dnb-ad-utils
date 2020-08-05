@@ -5,7 +5,7 @@ import subprocess
 import pexpect
 from sshconf import read_ssh_config
 
-from dnbad.common.azure_auth_page import AuthConfig
+from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
 from . import *

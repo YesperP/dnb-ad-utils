@@ -3,8 +3,8 @@ import logging
 
 from pyppeteer.page import Page
 
+from dnbad.common.azure_auth import AuthConfig, AuthBrowser
 from dnbad.common.azure_auth_handler import AzureAuthHandler, AuthState
-from dnbad.common.azure_auth_page import AuthConfig, AuthPage
 from dnbad.common.password_manager import PasswordManager
 
 LOG = logging.getLogger(__name__)
@@ -25,9 +25,9 @@ class GProxyAdLogin(AzureAuthHandler):
         return asyncio.get_event_loop().run_until_complete(self.login())
 
     async def login(self):
-        auth_page = AuthPage(auth_handler=self, config=self.config)
-        async with auth_page as page:
-            await page.goto(self.URL, waitUntil='domcontentloaded')
+        async with AuthBrowser(auth_handler=self, config=self.config) as browser, \
+                await browser.new_auth_page() as auth_page:
+            await auth_page.page.goto(self.URL, waitUntil='domcontentloaded')
             await auth_page.await_auth()
 
     async def _on_state_changed(self, page: Page, s: AuthState):

@@ -4,10 +4,10 @@ from urllib.parse import parse_qs
 
 from pyppeteer.network_manager import Request
 
+from dnbad.common.azure_auth import AuthBrowser
+from dnbad.common.azure_auth_config import AuthConfig
 from dnbad.common.azure_auth_handler import AzureAuthHandler
 from dnbad.common.password_manager import PasswordManager
-from dnbad.common.azure_auth_config import AuthConfig
-from dnbad.common.azure_auth_page import AuthPage
 from .saml import Saml
 
 
@@ -22,16 +22,12 @@ class SamlLogin:
         return asyncio.get_event_loop().run_until_complete(self._login())
 
     async def _login(self) -> str:
-        auth_page = AuthPage(
-            auth_handler=AzureAuthHandler(self.password_manager),
-            config=self.auth_config
-        )
-        async with auth_page as page:
-            url = Saml.build_url(tenant_id=self.tenant_id, app_id=self.app_id)
-            await page.goto(url)
-            request = await page.waitForRequest(Saml.SAML_COMPLETE_URL)
-            saml_response = self._get_saml_response_from_request(request)
-            return saml_response
+        async with AuthBrowser(AzureAuthHandler(self.password_manager), self.auth_config) as browser:
+            async with await browser.new_auth_page() as auth_page:
+                url = Saml.build_url(tenant_id=self.tenant_id, app_id=self.app_id)
+                await auth_page.page.goto(url)
+                request = await auth_page.await_request_after_auth(Saml.SAML_COMPLETE_URL)
+                return self._get_saml_response_from_request(request)
 
     @classmethod
     def _get_saml_response_from_request(cls, request: Request) -> str:
