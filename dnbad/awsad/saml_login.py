@@ -5,7 +5,7 @@ from urllib.parse import parse_qs
 from pyppeteer.network_manager import Request
 
 from dnbad.common.azure_auth import AuthBrowser
-from dnbad.common.azure_auth_config import AuthConfig
+from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.azure_auth_handler import AzureAuthHandler
 from dnbad.common.password_manager import PasswordManager
 from .saml import Saml

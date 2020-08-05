@@ -2,7 +2,7 @@ from typing import *
 
 from botocore.session import Session
 
-from dnbad.common.azure_auth_config import AuthConfig
+from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.configure import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
