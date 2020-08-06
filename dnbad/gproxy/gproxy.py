@@ -41,7 +41,9 @@ class GProxy:
         ]
 
     def connect(self, password_manager: PasswordManager, azure_ad_config: AuthConfig):
-        p = pexpect.spawn("ssh", self._connect_args(), encoding="utf-8")
+        args = self._connect_args()
+        LOG.debug(f"SSH connection args: {args}")
+        p = pexpect.spawn("ssh", args, encoding="utf-8")
         i = p.expect([pexpect.EOF, "authenticate."])
 
         if i == 0:
@@ -77,7 +79,14 @@ class GProxy:
 
     @staticmethod
     def is_connected():
-        return subprocess.run(["ssh", f"git@{BIND_HOST}", "whoami"], capture_output=True).returncode == 0
+        completed_process = subprocess.run(["ssh", f"git@{BIND_HOST}", "whoami"], capture_output=True)
+        output = completed_process.stderr.decode("utf-8")
+        LOG.debug(f"Connection status output: {repr(output)}")
+        if completed_process.returncode == 0:
+            return True
+        elif "Permission denied" in output:
+            raise GProxyError(f"Connection established, but BitBucket permission denied: {repr(output)}")
+        return False
 
     def _ctl_cmd(self, cmd):
         return subprocess.run(["ssh", "-S", CONTROL_SOCKETS_PATH, "-O", cmd, self._host()], capture_output=True)
