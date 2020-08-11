@@ -19,6 +19,7 @@ class GProxyError(Exception):
 
 
 class GProxy:
+    TIMEOUT_CHECK_CONNECTION = 2
 
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
@@ -77,9 +78,13 @@ class GProxy:
     def disconnect(self):
         self._ctl_cmd("exit")
 
-    @staticmethod
-    def is_connected():
-        completed_process = subprocess.run(["ssh", f"git@{BIND_HOST}", "whoami"], capture_output=True)
+    @classmethod
+    def is_connected(cls):
+        completed_process = subprocess.run(
+            ["ssh", f"git@{BIND_HOST}", "whoami"],
+            capture_output=True,
+            timeout=cls.TIMEOUT_CHECK_CONNECTION
+        )
         output = completed_process.stderr.decode("utf-8")
         LOG.debug(f"Connection status output: {repr(output)}")
         if completed_process.returncode == 0:
