@@ -9,7 +9,7 @@ from typing import *
 from pyppeteer.errors import TimeoutError as PypTimeoutError
 from pyppeteer.page import Page
 
-from dnbad.common import DATA_ROOT
+from dnbad.common import get_data_file_path
 from dnbad.common.exceptions import DnbException
 from dnbad.common.password_manager import PasswordManager
 
@@ -70,7 +70,7 @@ class AzureAuthHandler:
 
     def __init__(self, password_manager: PasswordManager):
         self.password_manager = password_manager
-        self.cookie_path = os.path.join(DATA_ROOT, f"cookies_{password_manager.username}.json")
+        self.cookie_path = get_data_file_path(f"cookies_{password_manager.username}.json")
 
     @classmethod
     def _states(cls):

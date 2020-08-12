@@ -9,6 +9,7 @@ from dateutil import tz
 
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
+from dnbad.common.configure import *
 from .aws_config import AwsConfig
 from .saml import Saml
 from .saml_login import SamlLogin, AuthConfig

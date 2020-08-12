@@ -1,4 +1,3 @@
-import logging
 import time
 
 from dnbad.common.azure_auth import AuthConfig

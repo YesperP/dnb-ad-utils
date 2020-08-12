@@ -5,7 +5,7 @@ from os import path
 from typing import *
 
 from dnbad.common.exceptions import DnbException
-from . import DATA_ROOT, create_data_root
+from . import get_data_file_path
 
 
 class MissingLocalConfigException(DnbException):
@@ -19,17 +19,18 @@ class LocalConfig:
     gproxy_hostname: Optional[str]
     gproxy_port: Optional[str]
 
-    FILE_PATH = path.join(DATA_ROOT, "gproxy_config.json")
+    @staticmethod
+    def _file_path():
+        return get_data_file_path("config.json")
 
     def save(self):
-        create_data_root()
-        with open(self.FILE_PATH, "w") as f:
+        with open(self._file_path(), "w") as f:
             json.dump(dataclasses.asdict(self), f)
 
     @classmethod
     def load(cls) -> "LocalConfig":
-        if not path.exists(cls.FILE_PATH):
+        if not path.exists(cls._file_path()):
             raise MissingLocalConfigException()
-        with open(cls.FILE_PATH, "r") as f:
+        with open(cls._file_path(), "r") as f:
             d = json.load(f)
         return cls(d["username"], d.get("gproxy_hostname"), d.get("gproxy_port"))

@@ -34,7 +34,7 @@ class GProxy:
     def _connect_args(self):
         return [
             "-fNT",
-            "-L", f"{self.bind_hostname}:{self.bind_port}:{FORWARD_HOST}:{FORWARD_PORT}",
+            "-L", f"{self.bind_hostname}:{self.bind_port}:{FORWARD_BITBUCKET_HOST}:{FORWARD_PORT}",
             "-S", CONTROL_SOCKETS_PATH,
             "-o", "ControlMaster auto",
             "-o", "ControlPersist yes",

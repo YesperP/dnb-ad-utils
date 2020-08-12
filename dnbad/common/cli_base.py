@@ -1,5 +1,4 @@
 import logging
-import os.path
 import random
 import string
 import sys
@@ -8,7 +7,7 @@ from dataclasses import dataclass
 from logging.handlers import RotatingFileHandler
 from typing import *
 
-from . import VERSION, DATA_ROOT
+from . import VERSION, get_data_file_path
 
 
 @dataclass
@@ -35,7 +34,7 @@ class CliBase:
         stream_handler.setLevel(logging.INFO)
 
         file_handler = RotatingFileHandler(
-            filename=os.path.join(DATA_ROOT, f"{self.prog}.log"),
+            filename=get_data_file_path(f"{self.prog}.log"),
             maxBytes=1 * 1024 * 1024,
             backupCount=0
         )
