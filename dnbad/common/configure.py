@@ -77,8 +77,7 @@ def general_config() -> LocalConfig:
         print("Keyring package not installed. Skipping storing password.")
         set_keyring = False
     elif pw_manager.is_keyring_set():
-        use_keyring = yes_no("Continue to use the system keyring to store your password?", True)
-        if use_keyring:
+        if yes_no("Continue to use the system keyring to store your password?", True):
             set_keyring = yes_no("Change the password in the keyring?", False)
         else:
             pw_manager.delete_keyring()
