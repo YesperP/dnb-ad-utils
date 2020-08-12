@@ -80,11 +80,16 @@ class GProxy:
 
     @classmethod
     def is_connected(cls):
-        completed_process = subprocess.run(
-            ["ssh", f"git@{BIND_HOST}", "whoami"],
-            capture_output=True,
-            timeout=cls.TIMEOUT_CHECK_CONNECTION
-        )
+        try:
+            completed_process = subprocess.run(
+                ["ssh", f"git@{BIND_HOST}", "whoami"],
+                capture_output=True,
+                timeout=cls.TIMEOUT_CHECK_CONNECTION
+            )
+        except subprocess.TimeoutExpired:
+            LOG.debug("Connection timeout.")
+            return False
+
         output = completed_process.stderr.decode("utf-8")
         LOG.debug(f"Connection status output: {repr(output)}")
         if completed_process.returncode == 0:

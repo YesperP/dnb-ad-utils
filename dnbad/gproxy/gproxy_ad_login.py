@@ -31,9 +31,9 @@ class GProxyAdLogin(AzureAuthHandler):
 
     async def _on_state_changed(self, page: Page, s: AuthState):
         """ The first OTC is the GProxy code"""
-        if s != self.STATE_OTC_CODE or self.code_submitted:
-            await super()._on_state_changed(page, s)
-        else:
+        if s == self.STATE_OTC_CODE and not self.code_submitted:
             await self._submit_value(page, "input[name=otc]", self.code)
             self.code_submitted = True
             LOG.info("GProxy code submitted")
+        else:
+            await super()._on_state_changed(page, s)
