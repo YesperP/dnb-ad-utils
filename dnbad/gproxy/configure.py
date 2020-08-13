@@ -8,7 +8,7 @@ from . import *
 from .util import show_line_diff, show_file
 
 
-def configure():
+def configure(advanced_mode=False):
     # Do general configuration:
     local_config = general_config()
 
@@ -22,9 +22,11 @@ def configure():
     with open(path.join(path.dirname(__file__), "prerequisites.txt")) as f:
         print(f.read())
 
-    header("GProxy Connection")
-    local_config.gproxy_hostname = get_input("GProxy Hostname", default=local_config.gproxy_hostname)
-    local_config.gproxy_port = get_input("GProxy Port", default=local_config.gproxy_port)
+    # TODO: Add advanced option which asks for this
+    if advanced_mode:
+        header("GProxy Connection (Advanced)")
+        local_config.gproxy_hostname = get_input("GProxy Server Hostname", default=local_config.gproxy_hostname)
+        local_config.gproxy_port = get_input("GProxy Server Port", default=local_config.gproxy_port)
     local_config.save()
 
     _configure_openssh()

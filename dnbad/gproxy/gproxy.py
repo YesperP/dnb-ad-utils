@@ -24,6 +24,7 @@ class GProxy:
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
 
+        # TODO: Handle missing config/not configured.
         ssh_config = read_ssh_config(SSH_CONFIG_PATH)
         self.bind_hostname = ssh_config.host(BIND_HOST)["hostname"]
         self.bind_port = ssh_config.host(BIND_HOST)["port"]
