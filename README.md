@@ -51,12 +51,28 @@ Both GProxy and AwsAd needs some basic configuration before running, respectivel
 
 User and Password management for ActiveDirectory are shared between the two programs. 
 
-## GProxy Inner Working
+## GProxy Advanced
 GProxy relies on OpenSSH on your local machine.
-It will set up a local forward tunnel to route bitbucket through the server.
-Configuration will check that (and add if missing) the following entry is present in config:
+
+#### GProxy Config
+The following entry is used in the ssh config. Configuration will check for its existence, and
+will aid in creating/changing it.
 
     Host git.tech-01.net
-        Hostname XXXX  # Default: localhost
-        Port XXXX  # Default: 9000
-        StrictHostKeyChecking XX  # Default: no
+        Hostname XXXX  # Required. Default value: localhost
+        Port XXXX  # Required. Default value: 9000
+        StrictHostKeyChecking XX  # Optional. Default value: no
+
+You may change this entry as you please (for instance, if the default port is already in use).
+GProxy will pull the latest hostname and port as in the config.
+
+#### GProxy through a proxy (very advanced)
+If you are on a network not permitting SSH access or want to mask your traffic 
+(for instance using a tool like STunnel), you may also want to change where GProxy connects
+to the server. GProxy will connect to 'gitproxy.ccoe.cloud:443'. But since OpenSSH is used,
+you may create an entry in your ssh config which overrides this.
+
+    Host gitproxy.ccoe.cloud
+        Hostname <your_proxy_host>
+        Port <your_proxy_port>
+

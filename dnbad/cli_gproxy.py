@@ -46,15 +46,8 @@ class NoConfigError(Exception):
     msg = "GProxy is not configured. Please run 'gproxy configure' first."
 
 
-def get_config() -> LocalConfig:
-    config = LocalConfig.load()
-    if config is None or config.gproxy_hostname is None or config.gproxy_port is None:
-        raise NoConfigError()
-    return config
-
-
 def connect(args):
-    config = get_config()
+    config = LocalConfig.load()
     g_proxy = GProxy(config)
     connected = g_proxy.is_connected()
     if connected:
@@ -75,7 +68,7 @@ def status() -> bool:
 
 
 def disconnect() -> bool:
-    g_proxy = GProxy(get_config())
+    g_proxy = GProxy(LocalConfig.load())
     g_proxy.disconnect()
     connected = g_proxy.is_connected()
     print(f"Could not disconnect." if connected else "Successfully disconnected.")
@@ -83,7 +76,7 @@ def disconnect() -> bool:
 
 
 def persist():
-    config = get_config()
+    config = LocalConfig.load()
     g_proxy = GProxy(config)
     ad_config = AuthConfig(
         headless=True,

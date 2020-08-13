@@ -21,26 +21,14 @@ ENTRY_REQUIRED = {
 }
 
 
-def configure(advanced_mode=False):
+def configure():
     # Do general configuration:
     local_config = general_config()
-
-    # Setting defaults:
-    if local_config.gproxy_hostname is None:
-        local_config.gproxy_hostname = DEFAULT_PROXY_HOSTNAME
-    if local_config.gproxy_port is None:
-        local_config.gproxy_port = DEFAULT_PROXY_PORT
+    local_config.save()
 
     header("GProxy Prerequisites")
     with open(path.join(path.dirname(__file__), "prerequisites.txt")) as f:
         print(f.read())
-
-    # TODO: Add advanced option which asks for this
-    if advanced_mode:
-        header("GProxy Connection (Advanced)")
-        local_config.gproxy_hostname = get_input("GProxy Server Hostname", default=local_config.gproxy_hostname)
-        local_config.gproxy_port = get_input("GProxy Server Port", default=local_config.gproxy_port)
-    local_config.save()
 
     _configure_openssh()
 
@@ -85,7 +73,7 @@ def _configure_openssh():
             print("Your SSH config file is already configured correctly. No changes needed.")
     else:
         ssh_config = empty_ssh_config_file()
-        ssh_config.add(host_name, **ENTRY_DEFAULT)
+        ssh_config.add(HOST, **ENTRY_DEFAULT)
         print(f"No ssh config found at {SSH_CONFIG_PATH}. We need to create this file:")
         show_file(ssh_config.config().split("\n"))
         if yes_no("Do you want us to create the file?", default=True):

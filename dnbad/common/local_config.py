@@ -2,7 +2,6 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from os import path
-from typing import *
 
 from dnbad.common.exceptions import DnbException
 from . import get_data_file_path
@@ -16,8 +15,6 @@ class MissingLocalConfigException(DnbException):
 @dataclass
 class LocalConfig:
     username: str
-    gproxy_hostname: Optional[str]
-    gproxy_port: Optional[str]
 
     @staticmethod
     def _file_path():
@@ -33,4 +30,4 @@ class LocalConfig:
             raise MissingLocalConfigException()
         with open(cls._file_path(), "r") as f:
             d = json.load(f)
-        return cls(d["username"], d.get("gproxy_hostname"), d.get("gproxy_port"))
+        return cls(d["username"])

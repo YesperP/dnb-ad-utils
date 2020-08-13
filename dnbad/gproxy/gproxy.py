@@ -21,7 +21,6 @@ class GProxyError(Exception):
 
 class GProxy:
     TIMEOUT_CHECK_CONNECTION = 2
-    HOST_KEY_FINGERPRINT = "SHA256:PSGDmbx+ZSyXXZh2PM83FjAaVs1riuG3hyYhwsbh55A"
 
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
@@ -32,7 +31,7 @@ class GProxy:
         self.bind_port = ssh_config.host(BIND_HOST)["port"]
 
     def _host(self):
-        return f"ssh://{SSH_USER}@{self.config.gproxy_hostname}:{self.config.gproxy_port}"
+        return f"ssh://{SSH_USER}@{GPROXY_HOSTNAME}:{GPROXY_PORT}"
 
     def _connect_args(self):
         return [
@@ -64,10 +63,10 @@ class GProxy:
                 raise GProxyError(f"Error when initializing SSH: {p.before}")
         elif i == 1:
             host_key_fingerprint = self._extract_host_key_fingerprint(p.before)
-            if host_key_fingerprint != self.HOST_KEY_FINGERPRINT:
+            if host_key_fingerprint != GPROXY_FINGERPRINT:
                 raise GProxyError(
                     f"!!!SEVERE!!! Host fingerprint is not matching expected!!! Report to CCOE!:"
-                    f"Actual:{host_key_fingerprint} != Expected:{self.HOST_KEY_FINGERPRINT}"
+                    f"Actual:{host_key_fingerprint} != Expected:{GPROXY_FINGERPRINT}"
                 )
             LOG.info("Confirming host! Fingerprint is matching expected.")
             p.send("yes\r")
