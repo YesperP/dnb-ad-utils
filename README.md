@@ -50,3 +50,13 @@ Both GProxy and AwsAd needs some basic configuration before running, respectivel
     $ awsad configure [-p <profile>]
 
 User and Password management for ActiveDirectory are shared between the two programs. 
+
+## GProxy Inner Working
+GProxy relies on OpenSSH on your local machine.
+It will set up a local forward tunnel to route bitbucket through the server.
+Configuration will check that (and add if missing) the following entry is present in config:
+
+    Host git.tech-01.net
+    StrictHostKeyChecking XX  # Default: no
+    Hostname XXXX  # Default: localhost
+    Port XXXX  # Default: 9000

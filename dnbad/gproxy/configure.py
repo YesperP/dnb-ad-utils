@@ -53,7 +53,7 @@ def _configure_openssh():
             ssh_config.add(host_name, **DEFAULT_BIT_BUCKET_HOST)
         else:
             for key, val in DEFAULT_BIT_BUCKET_HOST.items():
-                if host_config.get(key.lower(), "").lower() != val.lower():
+                if host_config.get(key.lower()) is None:
                     changed = True
                     ssh_config.set(host_name, **{key: val})
 

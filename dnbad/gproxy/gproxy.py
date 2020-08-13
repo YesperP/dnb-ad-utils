@@ -3,6 +3,7 @@ import re
 import subprocess
 
 import pexpect
+import re
 from sshconf import read_ssh_config
 
 from dnbad.common.azure_auth import AuthConfig
@@ -20,6 +21,7 @@ class GProxyError(Exception):
 
 class GProxy:
     TIMEOUT_CHECK_CONNECTION = 2
+    HOST_KEY_FINGERPRINT = "SHA256:PSGDmbx+ZSyXXZh2PM83FjAaVs1riuG3hyYhwsbh55A"
 
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
@@ -45,14 +47,31 @@ class GProxy:
     def connect(self, password_manager: PasswordManager, azure_ad_config: AuthConfig):
         args = self._connect_args()
         LOG.debug(f"SSH connection args: {args}")
-        p = pexpect.spawn("ssh", args, encoding="utf-8")
-        i = p.expect([pexpect.EOF, "authenticate."])
+        p: pexpect.spawn = pexpect.spawn("ssh", args, encoding="utf-8")
+        self._wait_connect(p, password_manager, azure_ad_config)
+
+    def _wait_connect(self, p: pexpect.spawn, password_manager: PasswordManager, azure_ad_config: AuthConfig):
+        i = p.expect([
+            pexpect.EOF,
+            re.compile(r"continue connecting \(yes/no\)\? "),
+            re.compile(r"authenticate\.")
+        ])
 
         if i == 0:
             raise GProxyError(f"Error when initializing SSH: {p.before}")
+        elif i == 1:
+            host_key_fingerprint = self._extract_host_key_fingerprint(p.before)
+            if host_key_fingerprint != self.HOST_KEY_FINGERPRINT:
+                raise GProxyError(
+                    f"SEVERE!!! Host fingerprint is not matching expected!!! Report to CCOE!:"
+                    f"Actual:{host_key_fingerprint} != Expected:{self.HOST_KEY_FINGERPRINT}"
+                )
+            LOG.info("Confirming host! Fingerprint is matching expected.")
+            p.send("yes\r")
+            self._wait_connect(p, password_manager, azure_ad_config)
+            return
 
         p.send("\r")
-
         code = self._extract_code(p.before)
         url = self._extract_url(p.before)
         LOG.info(f"GProxy OTC Code: {code}, Url: {url}")
@@ -70,11 +89,15 @@ class GProxy:
 
     @staticmethod
     def _extract_code(s):
-        return re.search(r"[A-Z0-9]{3,}", s).group(0)
+        return re.search(r"[A-Z0-9]{9,}", s).group(0)
 
     @staticmethod
     def _extract_url(s):
         return re.search(r"http[^\s]+", s).group(0)
+
+    @staticmethod
+    def _extract_host_key_fingerprint(s):
+        return re.search(r"SHA256:[a-zA-Z+0-9]*", s).group(0)
 
     def disconnect(self):
         self._ctl_cmd("exit")
