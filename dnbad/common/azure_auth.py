@@ -27,7 +27,6 @@ class AuthConfig:
         parser.add_argument("-n", "--no-headless", help="Login to Azure AD in non-headless mode", action="store_true")
         parser.add_argument("-d", "--debug", help="Debug mode", action="store_true")
         parser.add_argument("-c", "--no-cookies", help="Login without using cookies", action="store_true")
-        parser.add_argument("-p", "--profile", help="AWS Profile")
 
     @classmethod
     def from_args(cls, args) -> "AuthConfig":
