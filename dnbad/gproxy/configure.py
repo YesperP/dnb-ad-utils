@@ -7,6 +7,19 @@ from dnbad.common.configure import *
 from . import *
 from .util import show_line_diff, show_file
 
+HOST = BIND_HOST
+DEFAULT_HOSTNAME = "localhost"
+DEFAULT_PORT = "9000"
+ENTRY_DEFAULT = {
+    "Hostname": DEFAULT_HOSTNAME,
+    "Port": DEFAULT_PORT,
+    "StrictHostKeyChecking": "no"
+}
+ENTRY_REQUIRED = {
+    "Hostname": DEFAULT_HOSTNAME,
+    "Port": DEFAULT_PORT
+}
+
 
 def configure(advanced_mode=False):
     # Do general configuration:
@@ -40,22 +53,21 @@ def configure(advanced_mode=False):
 
 def _configure_openssh():
     header("GProxy OpenSSH config")
-    host_name = BIND_HOST
 
     if os.path.exists(SSH_CONFIG_PATH):
         ssh_config = read_ssh_config(SSH_CONFIG_PATH)
 
         # Check and create a compliant config:
         changed = False
-        host_config = ssh_config.host(host_name)
+        host_config = ssh_config.host(HOST)
         if len(host_config) == 0:
             changed = True
-            ssh_config.add(host_name, **DEFAULT_BIT_BUCKET_HOST)
+            ssh_config.add(HOST, **ENTRY_DEFAULT)
         else:
-            for key, val in DEFAULT_BIT_BUCKET_HOST.items():
-                if host_config.get(key.lower()) is None:
+            for key, default in ENTRY_REQUIRED.items():
+                if key.lower() not in host_config:
                     changed = True
-                    ssh_config.set(host_name, **{key: val})
+                    ssh_config.set(HOST, **{key: default})
 
         # Old config:
         if changed:
@@ -73,7 +85,7 @@ def _configure_openssh():
             print("Your SSH config file is already configured correctly. No changes needed.")
     else:
         ssh_config = empty_ssh_config_file()
-        ssh_config.add(host_name, **DEFAULT_BIT_BUCKET_HOST)
+        ssh_config.add(host_name, **ENTRY_DEFAULT)
         print(f"No ssh config found at {SSH_CONFIG_PATH}. We need to create this file:")
         show_file(ssh_config.config().split("\n"))
         if yes_no("Do you want us to create the file?", default=True):

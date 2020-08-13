@@ -58,7 +58,10 @@ class GProxy:
         ])
 
         if i == 0:
-            raise GProxyError(f"Error when initializing SSH: {p.before}")
+            if self.is_connected():
+                return
+            else:
+                raise GProxyError(f"Error when initializing SSH: {p.before}")
         elif i == 1:
             host_key_fingerprint = self._extract_host_key_fingerprint(p.before)
             if host_key_fingerprint != self.HOST_KEY_FINGERPRINT:

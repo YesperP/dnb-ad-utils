@@ -16,9 +16,3 @@ PERSIST_RETRY_TIME = 30
 
 DEFAULT_PROXY_HOSTNAME = "gitproxy.ccoe.cloud"
 DEFAULT_PROXY_PORT = "443"
-
-DEFAULT_BIT_BUCKET_HOST = {
-    "Hostname": "localhost",
-    "StrictHostKeyChecking": "no",
-    "Port": "9000",
-}

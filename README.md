@@ -57,6 +57,6 @@ It will set up a local forward tunnel to route bitbucket through the server.
 Configuration will check that (and add if missing) the following entry is present in config:
 
     Host git.tech-01.net
-    StrictHostKeyChecking XX  # Default: no
-    Hostname XXXX  # Default: localhost
-    Port XXXX  # Default: 9000
+        Hostname XXXX  # Default: localhost
+        Port XXXX  # Default: 9000
+        StrictHostKeyChecking XX  # Default: no
