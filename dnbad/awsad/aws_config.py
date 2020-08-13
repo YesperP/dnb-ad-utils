@@ -18,6 +18,8 @@ class MissingAwsConfigException(DnbException):
 
 @dataclass
 class AwsConfig:
+    profile: str
+
     azure_tenant_id: str
     azure_app_id: str
     azure_app_title: str
@@ -42,7 +44,8 @@ class AwsConfig:
         return asdict(self)
 
     @classmethod
-    def load(cls, session: Session) -> Optional["AwsConfig"]:
+    def load(cls, profile: str) -> Optional["AwsConfig"]:
+        session = Session(profile=profile)
         try:
             c = session.get_scoped_config()
         except ProfileNotFound:
@@ -57,6 +60,8 @@ class AwsConfig:
 
         try:
             return cls(
+                profile=profile,
+
                 azure_tenant_id=c["awsad-azure_tenant_id"],
                 azure_app_id=c["awsad-azure_app_id"],
                 azure_app_title=c["awsad-azure_app_title"],
@@ -70,7 +75,8 @@ class AwsConfig:
         except KeyError:
             raise MissingAwsConfigException(session.profile)
 
-    def save(self, session: Session):
+    def save(self):
+        session = Session(profile=self.profile)
         writer = ConfigFileWriter()
         values = {
             "awsad-azure_tenant_id": self.azure_tenant_id,

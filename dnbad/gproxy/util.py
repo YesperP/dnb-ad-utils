@@ -1,7 +1,6 @@
+import itertools
 import socket
 from typing import List
-import itertools
-
 
 _MIN_HEADER_OLD = "--OLD--"
 _MIN_HEADER_NEW = "--NEW--"

@@ -1,12 +1,12 @@
 import asyncio
 import logging
 from asyncio import Task, create_task, wait
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import *
 
 from pyppeteer.page import Page, Request
 
-from contextlib import asynccontextmanager
 from .azure_auth_handler import *
 from .pyppeteer import PypBrowser
 
@@ -17,10 +17,10 @@ LOG = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class AuthConfig:
-    headless: bool
-    use_cookies: bool
-    dump_io: bool
-    keep_open: bool
+    headless: bool = True
+    use_cookies: bool = True
+    dump_io: bool = False
+    keep_open: bool = False
 
     @staticmethod
     def add_arguments_to_parser(parser):

@@ -4,12 +4,12 @@ from typing import *
 from xml.etree import ElementTree
 
 import boto3
-from botocore.session import Session
+from botocore.exceptions import ClientError
 from dateutil import tz
 
+from dnbad.common.configure import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from dnbad.common.configure import *
 from .aws_config import AwsConfig
 from .saml import Saml
 from .saml_login import SamlLogin, AuthConfig
@@ -29,18 +29,26 @@ class AwsSAMLRole:
         return self.arn.split("/")[1]
 
 
-class AwsAdLogin:
-    LOGIN_URL = 'https://login.microsoftonline.com'
+class AwsAd:
     AWS_MIN_SESSION_DURATION = 900
 
     def __init__(
             self,
-            session: Session
+            profile: str
     ):
-        self._session = session
-
+        self.profile = profile
         self._local_config = LocalConfig.load()
-        self._aws_config: AwsConfig = AwsConfig.load(session)
+        self._aws_config: AwsConfig = AwsConfig.load(profile)
+
+    def has_valid_credentials(self) -> bool:
+        try:
+            self.session().client("sts").get_caller_identity()
+            return True
+        except ClientError:
+            return False
+
+    def session(self) -> boto3.Session:
+        return boto3.Session(profile_name=self.profile)
 
     @classmethod
     def _get_aws_saml_roles(cls, saml_xml: ElementTree) -> List[AwsSAMLRole]:
@@ -99,7 +107,12 @@ class AwsAdLogin:
             DurationSeconds=session_duration
         )["Credentials"]
 
-    def login(self, auth_config: AuthConfig):
+    def login_if_invalid_credentials(self, auth_config: Optional[AuthConfig] = None):
+        if not self.has_valid_credentials():
+            self.login(auth_config)
+
+    def login(self, auth_config: Optional[AuthConfig] = None):
+        auth_config = auth_config or AuthConfig()
         saml_response = SamlLogin(
             auth_config=auth_config,
             password_manager=PasswordManager(self._local_config.username),
@@ -122,7 +135,7 @@ class AwsAdLogin:
             session_duration=self._aws_config.aws_session_duration
         )
         self._put_credentials_in_config(credentials, aws_role.arn)
-        self._aws_config.save(self._session)
+        self._aws_config.save()
 
         delimiter = ''.join(['-'] * 60)
         expiration_time = credentials['Expiration'].replace(tzinfo=tz.UTC).astimezone(tz.tzlocal())
@@ -130,7 +143,7 @@ class AwsAdLogin:
             f"\n{delimiter}\n"
             f"Access credentials stored in AWS credentials file.\n"
             f"Account: '{self._aws_config.azure_app_title}'\n"
-            f"Profile: '{self._session.profile or 'default'}'.\n"
+            f"Profile: '{self._aws_config.profile or 'default'}'.\n"
             f"Associated role: '{aws_role.role_name()}'.\n"
             f"Credentials expire at {expiration_time:%Y-%m-%d %H:%M:%S %Z}.\n"
             f"{delimiter}"

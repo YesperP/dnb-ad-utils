@@ -3,7 +3,6 @@ import re
 import subprocess
 
 import pexpect
-import re
 from sshconf import read_ssh_config
 
 from dnbad.common.azure_auth import AuthConfig

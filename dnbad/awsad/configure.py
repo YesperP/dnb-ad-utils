@@ -23,7 +23,7 @@ class AWSAdConfigure:
         config_status = []
         for profile_name in all_profiles:
             try:
-                AwsConfig.load(Session(profile=profile_name))
+                AwsConfig.load(profile_name)
                 config_status.append(True)
             except MissingAwsConfigException:
                 config_status.append(False)
@@ -46,15 +46,16 @@ class AWSAdConfigure:
         general_config()
 
         header(f"AwsAd Config")
-
-        session = Session(profile=profile or self._get_profile())
+        profile = profile or self._get_profile()
 
         # Load the current config for the profile:
         try:
-            config = AwsConfig.load(session)
+            config = AwsConfig.load(profile)
         except MissingAwsConfigException:
             # noinspection PyTypeChecker
             config = AwsConfig(
+                profile=profile,
+
                 azure_tenant_id=None,
                 azure_app_id=None,
                 azure_app_title=None,
@@ -78,7 +79,7 @@ class AWSAdConfigure:
             hint="optional",
             default=config.aws_default_role_arn
         )
-        config.save(session)
+        config.save()
 
         header("AwsAd Configuration Completed")
         print("You may run the configuration again at any time.")

@@ -1,8 +1,6 @@
 from typing import *
 
-from botocore.session import Session
-
-from dnbad.awsad.awsad import AwsAdLogin, AuthConfig
+from dnbad.awsad.awsad import AwsAd, AuthConfig
 from dnbad.awsad.configure import AWSAdConfigure
 from dnbad.common.cli_base import CliBase, Namespace
 
@@ -24,8 +22,8 @@ class AwsAdCli(CliBase):
 
     def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
         if cmd == "login":
-            return AwsAdLogin(
-                session=Session(profile=args.profile)
+            return AwsAd(
+                profile=args.profile
             ).login(
                 auth_config=AuthConfig.from_args(args)
             )
