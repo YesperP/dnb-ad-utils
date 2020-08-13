@@ -63,7 +63,7 @@ class GProxy:
             host_key_fingerprint = self._extract_host_key_fingerprint(p.before)
             if host_key_fingerprint != self.HOST_KEY_FINGERPRINT:
                 raise GProxyError(
-                    f"SEVERE!!! Host fingerprint is not matching expected!!! Report to CCOE!:"
+                    f"!!!SEVERE!!! Host fingerprint is not matching expected!!! Report to CCOE!:"
                     f"Actual:{host_key_fingerprint} != Expected:{self.HOST_KEY_FINGERPRINT}"
                 )
             LOG.info("Confirming host! Fingerprint is matching expected.")
