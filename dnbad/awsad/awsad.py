@@ -35,13 +35,9 @@ class AwsAdLogin:
 
     def __init__(
             self,
-            session: Session,
-            account: Optional[str] = None,
-            role: Optional[str] = None
+            session: Session
     ):
         self._session = session
-        self._account = account
-        self._role_name = role
 
         self._local_config = LocalConfig.load()
         self._aws_config: AwsConfig = AwsConfig.load(session)
