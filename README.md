@@ -52,10 +52,10 @@ Both GProxy and AwsAd needs some basic configuration before running, respectivel
 User and Password management for ActiveDirectory are shared between the two programs. 
 
 ## GProxy Advanced
-GProxy relies on OpenSSH on your local machine.
+GProxy relies on OpenSSH on your local machine, allowing for customization.
 
 #### GProxy Config
-The following entry is used in the ssh config. Configuration will check for its existence, and
+The following entry is required in the ssh config. Configuration will check for its existence, and
 will aid in creating/changing it.
 
     Host git.tech-01.net
@@ -66,10 +66,10 @@ will aid in creating/changing it.
 You may change this entry as you please (for instance, if the default port is already in use).
 GProxy will pull the latest hostname and port as in the config.
 
-#### GProxy through a proxy (very advanced)
+#### GProxy through a proxy (experimental)
 If you are on a network not permitting SSH access or want to mask your traffic 
-(for instance using a tool like STunnel), you may also want to change where GProxy connects
-to the server. GProxy will connect to 'gitproxy.ccoe.cloud:443'. But since OpenSSH is used,
+(for instance using a tool like STunnel), you may also want to change where GProxy connects.
+GProxy will connect to 'gitproxy.ccoe.cloud:443'. But since OpenSSH is used,
 you may create an entry in your ssh config which overrides this.
 
     Host gitproxy.ccoe.cloud
