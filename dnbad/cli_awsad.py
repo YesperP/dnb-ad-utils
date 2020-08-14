@@ -14,15 +14,20 @@ class AwsAdCli(CliBase):
         super().__init__("awsad", "AWS Login with Azure AD")
         p_login = self.add_cmd("login", "Login and store credentials")
         AuthConfig.add_arguments_to_parser(p_login)
-        p_login.add_argument("-p", "--profile", help="AWS Profile")
+        self._add_profile(p_login)
 
         p_configure = self.add_cmd("configure", "Configure a profile")
         AuthConfig.add_arguments_to_parser(p_configure)
+        self._add_profile(p_configure)
 
         self.add_cmd("list", "List all AWS profiles")
 
         p_status = self.add_cmd("status", "Get status of credentials")
-        p_status.add_argument("-p", "--profile", help="AWS Profile")
+        self._add_profile(p_status)
+
+    @staticmethod
+    def _add_profile(parser):
+        parser.add_argument("-p", "--profile", help="AWS Profile")
 
     def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
         if cmd == "login":
