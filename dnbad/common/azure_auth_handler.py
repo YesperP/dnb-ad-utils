@@ -16,6 +16,7 @@ from dnbad.common.password_manager import PasswordManager
 __all__ = ["MfaExpiredException", "AuthState", "AzureAuthHandler"]
 
 LOG = logging.getLogger(__name__)
+PRINT = print
 
 
 class MfaExpiredException(DnbException):
@@ -116,7 +117,7 @@ class AzureAuthHandler:
             await self._submit_value(page, "input[name=passwd]", self.password_manager.get_password())
             LOG.info("Password submitted")
         elif s is self.STATE_MFA:
-            LOG.info("Approve the sign-in request on your phone...")
+            PRINT("Approve the sign-in request on your phone...")
         elif s is self.STATE_PWD_UPDATE:
             LOG.warning(f"Your password needs to be updated. "
                         f"Login to {self.password_manager.username} in your browser.")

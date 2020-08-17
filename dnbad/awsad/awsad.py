@@ -107,9 +107,14 @@ class AwsAd:
             DurationSeconds=session_duration
         )["Credentials"]
 
-    def login_if_invalid_credentials(self, auth_config: Optional[AuthConfig] = None):
+    def login_if_invalid_credentials(self, auth_config: Optional[AuthConfig] = None) -> "AwsAd":
         if not self.has_valid_credentials():
             self.login(auth_config)
+        return self
+
+    def setup_default_boto3_session(self) -> "AwsAd":
+        boto3.setup_default_session(profile_name=self.profile)
+        return self
 
     def login(self, auth_config: Optional[AuthConfig] = None):
         auth_config = auth_config or AuthConfig()
