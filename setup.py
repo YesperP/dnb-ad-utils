@@ -9,6 +9,7 @@ setup(
     license='MIT',
     author="Jesper Pedersen",
     author_email='jes.ped.til@gmail.com',
+    url="https://github.com/YesperP/dnb-ad-utils",
     description='Login to AWS and BitBucket through Azure Active Directory',
     long_description=long_description,
     long_description_content_type="text/markdown",
