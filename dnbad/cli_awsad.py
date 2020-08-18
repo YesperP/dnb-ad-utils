@@ -1,7 +1,7 @@
 from typing import *
 
-from dnbad.awsad.awsad import AwsAd, AuthConfig
-from dnbad.awsad.configure import AWSAdConfigure
+from dnbad.awsad import *
+from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.cli_base import CliBase, Namespace
 
 

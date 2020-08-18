@@ -112,8 +112,8 @@ class AwsAd:
             self.login(auth_config)
         return self
 
-    def setup_default_boto3_session(self) -> "AwsAd":
-        boto3.setup_default_session(profile_name=self.profile)
+    def setup_default_boto3_session(self, region_name: Optional[str] = None) -> "AwsAd":
+        boto3.setup_default_session(profile_name=self.profile, region_name=region_name)
         return self
 
     def login(self, auth_config: Optional[AuthConfig] = None):
