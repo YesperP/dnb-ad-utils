@@ -4,7 +4,7 @@ from typing import *
 from xml.etree import ElementTree
 
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, PartialCredentialsError
 from dateutil import tz
 
 from dnbad.common.configure import *
@@ -44,7 +44,7 @@ class AwsAd:
         try:
             self.session().client("sts").get_caller_identity()
             return True
-        except ClientError:
+        except (ClientError, PartialCredentialsError):
             return False
 
     def session(self) -> boto3.Session:
