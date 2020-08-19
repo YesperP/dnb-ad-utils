@@ -12,7 +12,7 @@ def main() -> int:
 class AwsAdCli(CliBase):
     def __init__(self):
         super().__init__("awsad", "AWS Login with Azure AD")
-        p_login = self.add_cmd("login", "Login and store credentials")
+        p_login = self.add_cmd("login", "Login and store credentials in .aws/credentials")
         AuthConfig.add_arguments_to_parser(p_login)
         self._add_profile(p_login)
 

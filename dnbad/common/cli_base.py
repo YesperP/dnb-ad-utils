@@ -18,7 +18,6 @@ class CliBase:
         self.prog = prog
         self.parser = ArgumentParser(prog, description=description)
         self.parser.add_argument("-v", "--version", action="version", version=VERSION)
-        self.parser.add_argument("-l", "--log-console", help="log to console", action="store_true")
         self.subparsers = self.parser.add_subparsers(dest="cmd")
 
     def add_cmd(self, name: str, help: str):

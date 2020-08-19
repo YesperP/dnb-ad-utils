@@ -1,6 +1,8 @@
 import itertools
 import socket
-from typing import List
+from typing import *
+
+__all__ = ["show_line_diff", "show_file", "format_list", "check_host"]
 
 _MIN_HEADER_OLD = "--OLD--"
 _MIN_HEADER_NEW = "--NEW--"
@@ -37,6 +39,10 @@ def show_file(lines: List[str]):
     for line in lines:
         print(f_str.format(line.ljust(line_max)))
     print(f_str.format("".center(line_max, "-")))
+
+
+def format_list(iterable: Iterable[str]):
+    return '\n'.join(f"• {e}" for e in sorted(iterable))
 
 
 # noinspection PyBroadException

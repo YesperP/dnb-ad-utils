@@ -1,13 +1,14 @@
 import time
 
+import pexpect.exceptions
+
 from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.cli_base import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from dnbad.gproxy import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_HOST
+from dnbad.gproxy.constants import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_HOST
 from dnbad.gproxy.configure import configure
 from dnbad.gproxy.gproxy import GProxy, GProxyError
-from pexpect.exceptions import TIMEOUT as PExpectTimeout
 
 LOG = logging.getLogger(__name__)
 
@@ -99,7 +100,7 @@ def persist():
             try:
                 g_proxy.connect(password_manager, ad_config)
                 LOG.info(f"Connected: {g_proxy.is_connected()}")
-            except (GProxyError, PExpectTimeout) as e:
+            except (GProxyError, pexpect.exceptions.TIMEOUT) as e:
                 LOG.warning(f"An error occurred when connecting:\n {str(e)}")
 
         time.sleep(PERSIST_POLL_TIME if connected else PERSIST_RETRY_TIME)

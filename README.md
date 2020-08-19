@@ -32,14 +32,19 @@ Minimal:
 * Python 3.7+
 
 ## Usage
-There is one command for each of AwsAd and GProxy, with help files for each:
+There is one command for each of AwsAd and GProxy, with help files for each,
+ together with help for subcommands:
     
     $ gproxy -h
     $ awsad -h
-    
-Please use help to examine the subcommands for each program. Help will give more information for each subcommand. E.g:
-
     $ awsad login -h
+
+Also, both can be used directly from code. Particularly useful is AwsAd.
+
+    import boto3
+    from dnbutils.awsad import AwsAd
+    AwsAd("<your-profile>").login_if_invalid_credentials().setup_default_boto3_session(region_name="eu-west-1")
+    boto3.client("dynamodb").do_something()
 
 
 ## Configuration

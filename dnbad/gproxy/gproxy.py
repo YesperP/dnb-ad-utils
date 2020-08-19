@@ -8,8 +8,10 @@ from sshconf import read_ssh_config
 from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from . import *
+from .constants import *
 from .gproxy_ad_login import GProxyAdLogin
+
+__all__ = ["GProxy", "GProxyError", "AuthConfig", "PasswordManager"]
 
 LOG = logging.getLogger(__name__)
 
@@ -29,7 +31,8 @@ class GProxy:
         self.bind_hostname = ssh_config.host(BIND_HOST)["hostname"]
         self.bind_port = ssh_config.host(BIND_HOST)["port"]
 
-    def _host(self):
+    @staticmethod
+    def _host():
         return f"ssh://{SSH_USER}@{GPROXY_HOSTNAME}:{GPROXY_PORT}"
 
     def _connect_args(self):

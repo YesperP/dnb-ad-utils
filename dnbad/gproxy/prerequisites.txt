@@ -1,3 +1,4 @@
-* You have a Tech-01.net account
-* You have a LM (Lightly Managed) device
-* You are a member of the GitProxy AD Group
+• You have a Tech-01.net account
+• You have a LM (Lightly Managed) device
+• You are a member of the GitProxy AD Group
+(see #gitproxy on slack)

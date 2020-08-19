@@ -1,4 +1,5 @@
 import asyncio
+from typing import *
 
 import pyppeteer
 from pyppeteer.browser import Browser
@@ -10,7 +11,7 @@ class PypBrowser:
         self.headless = headless
         self.dump_io = dump_io
         self.keep_open = keep_open
-        self.browser: Browser = None
+        self.browser: Optional[Browser] = None
 
     def ignore_pyppeteer_exception_handler(self, loop, context):
         if self.browser and isinstance(context["exception"], NetworkError):

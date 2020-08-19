@@ -4,8 +4,8 @@ from os import path
 from sshconf import read_ssh_config, empty_ssh_config_file
 
 from dnbad.common.configure import *
-from . import *
-from .util import show_line_diff, show_file
+from dnbad.common.utils import *
+from .constants import *
 
 HOST = BIND_HOST
 DEFAULT_HOSTNAME = "localhost"

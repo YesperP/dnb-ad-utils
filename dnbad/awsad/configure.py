@@ -6,6 +6,7 @@ from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.configure import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
+from dnbad.common.utils import format_list
 from .aws_config import AwsConfig, MissingAwsConfigException
 from .find_apps import AzureAppsFinder
 
@@ -13,9 +14,6 @@ __all__ = ["AWSAdConfigure"]
 
 
 class AWSAdConfigure:
-    @classmethod
-    def _format_list(cls, iterable: Iterable[str]):
-        return '\n'.join(f"• {e}" for e in sorted(iterable))
 
     @classmethod
     def list_profiles(cls) -> str:
@@ -29,7 +27,7 @@ class AWSAdConfigure:
                 config_status.append(False)
         profile_display = [f"{p if p else 'default':<20}{'' if status else '(not configured)'}"
                            for p, status in zip(all_profiles, config_status)]
-        return cls._format_list(profile_display)
+        return format_list(profile_display)
 
     def _get_profile(self) -> str:
         print(f"We found the existing AWS profiles:\n{self.list_profiles()}")
@@ -84,7 +82,8 @@ class AWSAdConfigure:
         header("AwsAd Configuration Completed")
         print("You may run the configuration again at any time.")
 
-    def _choose_app(self, aws_config: AwsConfig, auth_config: AuthConfig):
+    @staticmethod
+    def _choose_app(aws_config: AwsConfig, auth_config: AuthConfig):
         print("Finding aws accounts...")
         apps = AzureAppsFinder(
             password_manager=PasswordManager(LocalConfig.load().username),
@@ -92,7 +91,7 @@ class AWSAdConfigure:
         ).find_apps_sync()
 
         app_titles = [app.title for app in apps]
-        print(f"We have found the following aws accounts:\n{self._format_list(app_titles)}")
+        print(f"We have found the following aws accounts:\n{format_list(app_titles)}")
         app_title = get_input("Pick aws account", hint="", allowed_values=app_titles)
         app = max(apps, key=lambda a: a.title == app_title)
         aws_config.azure_app_title = app.title
