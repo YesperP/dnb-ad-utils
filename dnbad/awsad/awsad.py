@@ -39,7 +39,7 @@ class AwsAd:
 
     def has_valid_credentials(self) -> bool:
         return self._aws_config.aws_expiration_time is not None and \
-               self._aws_config.aws_expiration_time < datetime.datetime.now(tz.UTC)
+               self._aws_config.aws_expiration_time > datetime.datetime.now(tz.UTC)
 
     def session(self) -> boto3.Session:
         return boto3.Session(profile_name=self.profile)
