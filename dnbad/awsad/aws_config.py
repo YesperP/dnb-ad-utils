@@ -5,7 +5,7 @@ from typing import *
 from awscli.customizations.configure.writer import ConfigFileWriter
 from botocore.exceptions import ProfileNotFound
 from botocore.session import Session
-
+import datetime
 from dnbad.common.exceptions import DnbException
 
 __all__ = ["MissingAwsConfigException", "AwsConfig"]
@@ -29,6 +29,7 @@ class AwsConfig:
     aws_access_key_id: Optional[str]
     aws_secret_access_key: Optional[str]
     aws_session_token: Optional[str]
+    aws_expiration_time: Optional[datetime.datetime]
 
     @staticmethod
     def config_file_path(session: Session, expand_user: bool = False):
@@ -70,7 +71,8 @@ class AwsConfig:
 
                 aws_access_key_id=get("aws_access_key_id"),
                 aws_secret_access_key=get("aws_secret_access_key"),
-                aws_session_token=get("aws_session_token")
+                aws_session_token=get("aws_session_token"),
+                aws_expiration_time=get("awsad-aws_expiration_time", datetime.datetime.fromisoformat)
             )
         except KeyError:
             raise MissingAwsConfigException(session.profile)
@@ -93,7 +95,8 @@ class AwsConfig:
         values = {
             "aws_access_key_id": self.aws_access_key_id,
             "aws_secret_access_key": self.aws_secret_access_key,
-            "aws_session_token": self.aws_session_token
+            "aws_session_token": self.aws_session_token,
+            "awsad-aws_expiration_time": self.aws_expiration_time.isoformat() if self.aws_expiration_time else None
         }
         if session.profile is not None:
             values["__section__"] = session.profile

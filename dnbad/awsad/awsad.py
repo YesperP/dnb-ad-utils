@@ -1,10 +1,10 @@
+import datetime
 import logging
 from dataclasses import dataclass
 from typing import *
 from xml.etree import ElementTree
 
 import boto3
-from botocore.exceptions import ClientError, PartialCredentialsError
 from dateutil import tz
 
 from dnbad.common.configure import *
@@ -41,11 +41,8 @@ class AwsAd:
         self._aws_config: AwsConfig = AwsConfig.load(profile)
 
     def has_valid_credentials(self) -> bool:
-        try:
-            self.session().client("sts").get_caller_identity()
-            return True
-        except (ClientError, PartialCredentialsError):
-            return False
+        return self._aws_config.aws_expiration_time is not None and \
+               self._aws_config.aws_expiration_time < datetime.datetime.utcnow()
 
     def session(self) -> boto3.Session:
         return boto3.Session(profile_name=self.profile)
@@ -66,6 +63,7 @@ class AwsAd:
         self._aws_config.aws_access_key_id = credentials["AccessKeyId"]
         self._aws_config.aws_secret_access_key = credentials["SecretAccessKey"]
         self._aws_config.aws_session_token = credentials["SessionToken"]
+        self._aws_config.aws_expiration_time = credentials["Expiration"].replace(tzinfo=tz.UTC)
 
     def _choose_role(self, roles: List[AwsSAMLRole]) -> AwsSAMLRole:
         if len(roles) == 0:
@@ -143,7 +141,7 @@ class AwsAd:
         self._aws_config.save()
 
         delimiter = ''.join(['-'] * 60)
-        expiration_time = credentials['Expiration'].replace(tzinfo=tz.UTC).astimezone(tz.tzlocal())
+        expiration_time = self._aws_config.aws_expiration_time.astimezone(tz.tzlocal())
         print(
             f"\n{delimiter}\n"
             f"Access credentials stored in AWS credentials file.\n"

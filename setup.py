@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dnb-ad-utils',
-    version='0.1.4',
+    version='0.1.5',
     license='MIT',
     author="Jesper Pedersen",
     author_email='jes.ped.til@gmail.com',
