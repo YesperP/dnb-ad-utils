@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 from dataclasses import dataclass
 from typing import *
 from xml.etree import ElementTree
@@ -109,6 +110,12 @@ class AwsAd:
 
     def setup_default_boto3_session(self, region_name: Optional[str] = None) -> "AwsAd":
         boto3.setup_default_session(profile_name=self.profile, region_name=region_name)
+        return self
+
+    def setup_default_boto3_session_environment(self, region_name: Optional[str] = None) -> "AwsAd":
+        os.environ["AWS_PROFILE"] = self.profile
+        if region_name:
+            os.environ["AWS_DEFAULT_REGION"] = region_name
         return self
 
     def login(self, auth_config: Optional[AuthConfig] = None):
