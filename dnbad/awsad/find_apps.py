@@ -46,6 +46,7 @@ class AzureAppsFinder:
     @classmethod
     async def query_apps(cls, page: Page) -> List[AdApp]:
         def get_prop(s, key):
+            """ Designed to find a value based on key for a url. """
             m = re.search(f"(?<={key}=)[^&']+", s)
             return m.group(0) if m else None
 
