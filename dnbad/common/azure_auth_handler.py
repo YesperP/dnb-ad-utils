@@ -10,7 +10,7 @@ from pyppeteer.errors import TimeoutError as PypTimeoutError
 from pyppeteer.page import Page
 
 from dnbad.common import get_data_file_path
-from dnbad.common.exceptions import DnbException
+from dnbad.common.exceptions import AdUtilException
 from dnbad.common.password_manager import PasswordManager
 
 __all__ = ["MfaExpiredException", "AuthState", "AzureAuthHandler"]
@@ -19,11 +19,11 @@ LOG = logging.getLogger(__name__)
 PRINT = print
 
 
-class MfaExpiredException(DnbException):
+class MfaExpiredException(AdUtilException):
     pass
 
 
-class PasswordError(DnbException):
+class PasswordError(AdUtilException):
     pass
 
 
@@ -151,11 +151,11 @@ class AzureAuthHandler:
                      for c in cookies if c["name"] not in self.IGNORE_COOKIE_NAMES]
             if len(tasks) > 0:
                 await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-            LOG.debug(f"Cookies for {self.password_manager.username} loaded.")
+            LOG.info(f"Cookies for {self.password_manager.username} loaded.")
         else:
             LOG.info(f"Cookies for {self.password_manager.username} not yet existing.")
 
     async def save_cookies(self, page: Page):
         with open(self.cookie_path, mode="w") as f:
             json.dump(await page.cookies(), f)
-        LOG.debug(f"Cookies for {self.password_manager.username} saved.")
+        LOG.info(f"Cookies for {self.password_manager.username} saved.")

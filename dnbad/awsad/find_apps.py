@@ -30,13 +30,13 @@ class AzureAppsFinder:
         self.password_manager = password_manager
         self.timeout = timeout
 
-    def find_apps_sync(self) -> List[AdApp]:
-        return asyncio.get_event_loop().run_until_complete(self.find_apps())
+    def find_aws_apps_sync(self) -> List[AdApp]:
+        return asyncio.get_event_loop().run_until_complete(self.find_aws_apps())
 
-    async def find_apps(self) -> List[AdApp]:
+    async def find_aws_apps(self) -> List[AdApp]:
         async with single_auth_page(AzureAuthHandler(self.password_manager), self.config) as auth_page:
             await auth_page.page.goto(self.APPS_URL)
-            await auth_page.page.waitForSelector(self.APP_ITEM_SELECTOR, visible=True, timeout=self.timeout * 1000)
+            await auth_page.await_after_auth(auth_page.page.waitForSelector(self.APP_ITEM_SELECTOR, visible=True))
 
             # Examine app results:
             ad_apps = await self.query_apps(auth_page.page)
@@ -52,12 +52,10 @@ class AzureAppsFinder:
 
         apps = []
         for element in await page.querySelectorAll(cls.APP_ITEM_SELECTOR):
-            link = await element.querySelector("a")
-            img = await link.querySelector("img")
-            div = await link.querySelector("div")
+            img = await element.querySelector("img")
 
             img_src = await page.evaluate('(e) => e.getAttribute("src")', img)
-            title = await page.evaluate('(e) => e.getAttribute("title")', div)
+            title = await page.evaluate('(e) => e.getAttribute("alt")', img)
 
             apps.append(AdApp(
                 title=title,

@@ -33,7 +33,7 @@ def configure():
     _configure_openssh()
 
     # Create control sockets directory
-    _create_control_socket_dir(CONTROL_SOCKETS_PATH)
+    _create_dir(CONTROL_SOCKETS_PATH)
 
     header("GProxy Configuration Completed")
     print("You may run the configuration again at any time.")
@@ -77,11 +77,13 @@ def _configure_openssh():
         print(f"No ssh config found at {SSH_CONFIG_PATH}. We need to create this file:")
         show_file(ssh_config.config().split("\n"))
         if yes_no("Do you want us to create the file?", default=True):
+            _create_dir(SSH_CONFIG_PATH)
             ssh_config.write(SSH_CONFIG_PATH)
 
 
-def _create_control_socket_dir(control_path):
-    control_dir = path.dirname(path.expanduser(control_path))
-    if not path.exists(control_dir):
-        print(f"Creating '{control_dir}' for control-socket...")
-        os.mkdir(control_dir)
+def _create_dir(file_path: str):
+    directory = path.dirname(path.expanduser(file_path))
+    exists = path.exists(directory)
+    if not exists:
+        os.mkdir(directory)
+    return exists

@@ -6,12 +6,12 @@ from awscli.customizations.configure.writer import ConfigFileWriter
 from botocore.exceptions import ProfileNotFound
 from botocore.session import Session
 import datetime
-from dnbad.common.exceptions import DnbException
+from dnbad.common.exceptions import AdUtilException
 
 __all__ = ["MissingAwsConfigException", "AwsConfig"]
 
 
-class MissingAwsConfigException(DnbException):
+class MissingAwsConfigException(AdUtilException):
     def __init__(self, profile: Optional[str]):
         super().__init__(f"Missing Aws Config for '{profile or 'default'}'. You must configure awsad.")
 

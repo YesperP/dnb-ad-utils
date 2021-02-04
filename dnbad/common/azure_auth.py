@@ -25,7 +25,7 @@ class AuthConfig:
     @staticmethod
     def add_arguments_to_parser(parser):
         parser.add_argument("-n", "--no-headless", help="Login to Azure AD in non-headless mode", action="store_true")
-        parser.add_argument("-d", "--debug", help="Debug mode", action="store_true")
+        parser.add_argument("-o", "--keep-open", help="Keep browser open", action="store_true")
         parser.add_argument("-c", "--no-cookies", help="Login without using cookies", action="store_true")
 
     @classmethod
@@ -33,8 +33,8 @@ class AuthConfig:
         return AuthConfig(
             headless=not args.no_headless,
             use_cookies=not args.no_cookies,
-            dump_io=args.debug,
-            keep_open=args.debug and not args.no_headless
+            dump_io=False,
+            keep_open=args.keep_open
         )
 
 
@@ -53,16 +53,17 @@ class AuthPage:
     async def await_auth(self):
         return await self._auth_task
 
-    async def await_after_auth(self, coroutine: Coroutine):
-        main_task = create_task(coroutine)
-        done, pending = await wait((main_task, self._auth_task), return_when=asyncio.FIRST_COMPLETED)
+    async def await_after_auth(self, awaitable: Awaitable):
+        if isinstance(awaitable, Coroutine):
+            task = create_task(awaitable)
+        else:
+            task = awaitable
+
+        done, pending = await wait((task, self._auth_task), return_when=asyncio.FIRST_COMPLETED)
         if self._auth_task in done:
             # If auth task completes first, there may be an exception. Make sure that its raised.
             await self._auth_task
-        return await main_task
-
-    async def await_request_after_auth(self, url: str) -> Request:
-        return await self.await_after_auth(self.page.waitForRequest(url))
+        return await task
 
     async def __aenter__(self):
         if self.auth_config.use_cookies:
@@ -88,7 +89,7 @@ class AuthBrowser(PypBrowser):
 
 
 @asynccontextmanager
-async def single_auth_page(auth_handler: AzureAuthHandler, config: AuthConfig):
+async def single_auth_page(auth_handler: AzureAuthHandler, config: AuthConfig) -> AuthPage:
     """ Opens a browser and auth page """
     async with AuthBrowser(auth_handler, config) as b, await b.new_auth_page() as p:
         yield p

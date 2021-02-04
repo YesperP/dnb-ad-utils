@@ -54,7 +54,7 @@ class GProxy:
     def _wait_connect(self, p: pexpect.spawn, password_manager: PasswordManager, azure_ad_config: AuthConfig):
         i = p.expect([
             pexpect.EOF,
-            re.compile(r"continue connecting \(yes/no\)\? "),
+            re.compile(r"continue connecting \(yes/no(/\[fingerprint])?\)\? "),
             re.compile(r"authenticate\.")
         ])
 
@@ -118,12 +118,13 @@ class GProxy:
             LOG.debug("Connection timeout.")
             return False
 
-        output = completed_process.stderr.decode("utf-8")
-        LOG.debug(f"Connection status output: {repr(output)}")
+        output = repr(completed_process.stderr.decode("utf-8"))
+        LOG.debug(f"Connection status output: {output}")
         if completed_process.returncode == 0:
             return True
         elif "Permission denied" in output:
-            raise GProxyError(f"Connection established, but BitBucket permission denied: {repr(output)}")
+            raise GProxyError(f"Connection established, but BitBucket permission denied. "
+                              f"Check your private/public keys. ({output})")
         return False
 
     def _ctl_cmd(self, cmd):

@@ -24,7 +24,7 @@ class SamlLogin:
         async with single_auth_page(AzureAuthHandler(self.password_manager), self.auth_config) as auth_page:
             url = Saml.build_url(tenant_id=self.tenant_id, app_id=self.app_id)
             await auth_page.page.goto(url)
-            request = await auth_page.await_request_after_auth(Saml.SAML_COMPLETE_URL)
+            request = await auth_page.await_after_auth(auth_page.page.waitForRequest(Saml.SAML_COMPLETE_URL))
             return self._get_saml_response_from_request(request)
 
     @classmethod

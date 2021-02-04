@@ -3,11 +3,11 @@ import json
 from dataclasses import dataclass
 from os import path
 
-from dnbad.common.exceptions import DnbException
+from dnbad.common.exceptions import AdUtilException
 from . import get_data_file_path
 
 
-class MissingLocalConfigException(DnbException):
+class MissingLocalConfigException(AdUtilException):
     def __init__(self):
         super().__init__("Missing config. You must configure either awsad or gproxy.")
 

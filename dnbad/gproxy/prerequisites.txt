@@ -1,4 +1,4 @@
-• You have a Tech-01.net account
-• You have a LM (Lightly Managed) device
+• You have a LM (Lightly Managed) device complying with CompanyPortal
 • You are a member of the GitProxy AD Group
-(see #gitproxy on slack)
+• You have setup private+public SSH keys with BitBucket
+(more info in the #gitproxy channel in Slack)

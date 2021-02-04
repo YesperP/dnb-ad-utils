@@ -10,27 +10,35 @@ from dnbad.common.password_manager import PasswordManager
 LOG = logging.getLogger(__name__)
 
 
-class GProxyAdLogin(AzureAuthHandler):
+class GProxyAdLogin:
     URL = "https://microsoft.com/devicelogin"
-    STATE_GPROXY = AuthState("GitProxy")
-    END_STATES = (STATE_GPROXY,)
 
     def __init__(self, code: str, password_manager: PasswordManager, config: AuthConfig):
-        super().__init__(password_manager)
+        self.auth_handler = GProxyAzureAuthHandler(code, password_manager)
         self.config = config
-        self.code = code
-        self.code_submitted = False
 
     def login_sync(self) -> bool:
         return asyncio.get_event_loop().run_until_complete(self.login())
 
     async def login(self):
-        async with single_auth_page(self, self.config) as auth_page:
+        async with single_auth_page(self.auth_handler, self.config) as auth_page:
             await auth_page.page.goto(self.URL)
             await auth_page.await_auth()
 
+
+class GProxyAzureAuthHandler(AzureAuthHandler):
+    """ Specialized auth handler for the GProxy auth flow. """
+
+    STATE_GPROXY = AuthState("GitProxy")
+    END_STATES = (STATE_GPROXY,)
+
+    def __init__(self, code, password_manager: PasswordManager):
+        super().__init__(password_manager)
+        self.code = code
+        self.code_submitted = False
+
     async def _on_state_changed(self, page: Page, s: AuthState):
-        """ The first OTC is the GProxy code"""
+        """ The first OTC is the GProxy code """
         if s == self.STATE_OTC_CODE and not self.code_submitted:
             await self._submit_value(page, "input[name=otc]", self.code)
             self.code_submitted = True

@@ -62,7 +62,8 @@ class AWSAdConfigure:
 
                 aws_access_key_id=None,
                 aws_secret_access_key=None,
-                aws_session_token=None
+                aws_session_token=None,
+                aws_expiration_time=None
             )
 
         # App:
@@ -88,7 +89,7 @@ class AWSAdConfigure:
         apps = AzureAppsFinder(
             password_manager=PasswordManager(LocalConfig.load().username),
             config=auth_config
-        ).find_apps_sync()
+        ).find_aws_apps_sync()
 
         app_titles = [app.title for app in apps]
         print(f"We have found the following aws accounts:\n{format_list(app_titles)}")
