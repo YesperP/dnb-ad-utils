@@ -83,8 +83,16 @@ class AWSAdConfigure:
         header("AwsAd Configuration Completed")
         print("You may run the configuration again at any time.")
 
-    @staticmethod
-    def _choose_app(aws_config: AwsConfig, auth_config: AuthConfig):
+    @classmethod
+    def _choose_app(cls, aws_config: AwsConfig, auth_config: AuthConfig):
+        try:
+            cls._choose_app_auto(aws_config, auth_config)
+        except Exception:
+            print("Something went wrong with finding your apps... Please enter manually")
+            cls._choose_app_manual(aws_config)
+
+    @classmethod
+    def _choose_app_auto(cls, aws_config: AwsConfig, auth_config: AuthConfig):
         print("Finding aws accounts...")
         apps = AzureAppsFinder(
             password_manager=PasswordManager(LocalConfig.load().username),
@@ -98,3 +106,9 @@ class AWSAdConfigure:
         aws_config.azure_app_title = app.title
         aws_config.azure_app_id = app.app_id
         aws_config.azure_tenant_id = app.tenant_id
+
+    @classmethod
+    def _choose_app_manual(cls, aws_config: AwsConfig):
+        aws_config.azure_app_id = get_input("Azure app id")
+        aws_config.azure_tenant_id = get_input("Azure tenant id")
+        aws_config.azure_app_title = get_input("App Title", hint="AWS-something")

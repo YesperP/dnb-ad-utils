@@ -18,7 +18,7 @@ class AdApp:
 
 class AzureAppsFinder:
     APPS_URL = "https://myapplications.microsoft.com/"
-    APP_ITEM_SELECTOR = "div[class=ms-List-cell]"
+    APP_ITEM_SELECTOR = "img[alt*=AWS]"
 
     def __init__(
             self,
@@ -39,27 +39,28 @@ class AzureAppsFinder:
             await auth_page.await_after_auth(auth_page.page.waitForSelector(self.APP_ITEM_SELECTOR, visible=True))
 
             # Examine app results:
-            ad_apps = await self.query_apps(auth_page.page)
-            aws_apps = [app for app in ad_apps if app.title.startswith("AWS")]
-            return aws_apps
+            return await self.query_apps(auth_page.page)
 
     @classmethod
     async def query_apps(cls, page: Page) -> List[AdApp]:
-        def get_prop(s, key):
+        def get_url_attr(s, key):
             """ Designed to find a value based on key for a url. """
             m = re.search(f"(?<={key}=)[^&']+", s)
             return m.group(0) if m else None
 
-        apps = []
-        for element in await page.querySelectorAll(cls.APP_ITEM_SELECTOR):
-            img = await element.querySelector("img")
+        async def get_attr(handle, attribute):
+            return await page.evaluate(f'(e) => e.getAttribute("{attribute}")', handle)
 
-            img_src = await page.evaluate('(e) => e.getAttribute("src")', img)
-            title = await page.evaluate('(e) => e.getAttribute("alt")', img)
+        apps = []
+        aws_items = await page.querySelectorAll(cls.APP_ITEM_SELECTOR)
+        for item in aws_items:
+
+            title = await get_attr(item, "alt")
+            img_src = await get_attr(item, "src")
 
             apps.append(AdApp(
                 title=title,
-                tenant_id=get_prop(img_src, 'tenantId'),
-                app_id=get_prop(img_src, 'appId')
+                tenant_id=get_url_attr(img_src, 'tenantId'),
+                app_id=get_url_attr(img_src, 'appId')
             ))
         return apps
