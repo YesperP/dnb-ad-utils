@@ -65,6 +65,7 @@ def _make_compliant(ssh_config):
     changed = False
     for host in SSH_HOSTS:
         host_config = ssh_config.host(host.hostname)
+        print(host_config)
         if "hostname" not in host_config:
             ssh_config.set(host.hostname, Hostname="localhost")
             changed = True

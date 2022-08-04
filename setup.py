@@ -1,11 +1,13 @@
 from setuptools import find_packages, setup
 
+from dnbad.common import VERSION
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='dnb-ad-utils',
-    version='0.1.7',
+    version=VERSION,
     license='MIT',
     author="Jesper Pedersen",
     author_email='Jesper.Pedersen@dnb.no, jes.ped.til@gmail.com',
