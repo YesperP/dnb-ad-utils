@@ -2,6 +2,7 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from os import path
+from typing import *
 
 from dnbad.common.exceptions import AdUtilException
 from . import get_data_file_path
@@ -17,17 +18,24 @@ class LocalConfig:
     username: str
 
     @staticmethod
-    def _file_path():
+    def default_file_path():
         return get_data_file_path("config.json")
 
-    def save(self):
-        with open(self._file_path(), "w") as f:
+    def save(self, file_path: Optional[str] = None):
+        file_path = file_path or self.default_file_path()
+        with open(file_path, "w") as f:
             json.dump(dataclasses.asdict(self), f)
 
     @classmethod
-    def load(cls) -> "LocalConfig":
-        if not path.exists(cls._file_path()):
+    def load(cls, file_path: Optional[str] = None) -> "LocalConfig":
+        file_path = file_path or cls.default_file_path()
+        if not path.exists(file_path):
             raise MissingLocalConfigException()
-        with open(cls._file_path(), "r") as f:
+        with open(file_path, "r") as f:
             d = json.load(f)
         return cls(d["username"])
+
+    @classmethod
+    def empty(cls):
+        # noinspection PyTypeChecker
+        return LocalConfig(None)

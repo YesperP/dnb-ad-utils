@@ -59,8 +59,7 @@ def general_config() -> LocalConfig:
     try:
         local_config = LocalConfig.load()
     except MissingLocalConfigException:
-        # noinspection PyTypeChecker
-        local_config = LocalConfig(None)
+        local_config = LocalConfig.empty()
 
     # Configure username
     header("Configuring Azure Information")

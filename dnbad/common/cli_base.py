@@ -27,7 +27,7 @@ class CliBase:
         success = self._handle()
         return 0 if success is None or success else 1
 
-    def _setup_logging(self, args):
+    def _setup_logging(self):
         stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setFormatter(logging.Formatter(fmt='%(levelname)-8s %(message)s'))
         stream_handler.setLevel(logging.INFO)
@@ -60,7 +60,7 @@ class CliBase:
         log_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
         try:
-            self._setup_logging(args)
+            self._setup_logging()
             self.LOG.debug(f"======START(cmd={args.cmd},id={log_id})======")
             if args.cmd is None:
                 self.parser.print_help()
@@ -71,4 +71,4 @@ class CliBase:
             self.LOG.debug(f"======END(cmd={args.cmd},id={log_id})======")
 
     def _handle_cmd(self, cmd: str, args: Namespace) -> Optional[bool]:
-        pass
+        raise NotImplementedError()

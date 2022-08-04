@@ -21,29 +21,27 @@ class GProxyError(Exception):
 
 
 class GProxy:
-    TIMEOUT_CHECK_CONNECTION = 2
-
     def __init__(self, config: LocalConfig):
         self.config: LocalConfig = config
-
         # TODO: Handle missing config/not configured.
-        ssh_config = read_ssh_config(SSH_CONFIG_PATH)
-        self.bind_hostname = ssh_config.host(BIND_HOST)["hostname"]
-        self.bind_port = ssh_config.host(BIND_HOST)["port"]
+        self.ssh_config = read_ssh_config(SSH_CONFIG_PATH)
 
     @staticmethod
     def _host():
         return f"ssh://{SSH_USER}@{GPROXY_HOSTNAME}:{GPROXY_PORT}"
 
     def _connect_args(self):
-        return [
+        options = [
             "-fNT",
-            "-L", f"{self.bind_hostname}:{self.bind_port}:{FORWARD_BITBUCKET_HOST}:{FORWARD_PORT}",
             "-S", CONTROL_SOCKETS_PATH,
             "-o", "ControlMaster auto",
             "-o", "ControlPersist yes",
-            self._host()
         ]
+        for host in HOSTS:
+            config = self.ssh_config.host(host.hostname)
+            options.extend(["-L", f"{config['hostname']}:{config['port']}:{host.hostname}:{host.port}"])
+
+        return options + [self._host()]
 
     def connect(self, password_manager: PasswordManager, azure_ad_config: AuthConfig):
         args = self._connect_args()
@@ -110,9 +108,9 @@ class GProxy:
     def is_connected(cls):
         try:
             completed_process = subprocess.run(
-                ["ssh", f"git@{BIND_HOST}", "whoami"],
+                ["ssh", f"git@{STATUS_TEST_HOST}", "whoami"],
                 capture_output=True,
-                timeout=cls.TIMEOUT_CHECK_CONNECTION
+                timeout=TIMEOUT_CHECK_CONNECTION
             )
         except subprocess.TimeoutExpired:
             LOG.debug("Connection timeout.")
