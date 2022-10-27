@@ -19,7 +19,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "boto3==1.24.*",
-        "pyppeteer==0.2.*",
+        "pyppeteer==1.0.2",
         "python-dateutil",
         "awscli",
         "pexpect",

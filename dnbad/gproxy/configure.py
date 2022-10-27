@@ -65,17 +65,17 @@ def _make_compliant(ssh_config):
     changed = False
     for host in SSH_HOSTS:
         host_config = ssh_config.host(host.hostname)
-        print(host_config)
+
+        # If there was no entry, we create one:
+        if len(host_config) == 0:
+            ssh_config.add(host.hostname, StrictHostKeyChecking="no")
+
         if "hostname" not in host_config:
             ssh_config.set(host.hostname, Hostname="localhost")
             changed = True
         if "port" not in host_config:
             ssh_config.set(host.hostname, Port=str(host.default_local_port))
             changed = True
-
-        # If there was no entry, we set this optional option:
-        if len(host_config) == 0:
-            ssh_config.set(host.hostname, StrictHostKeyChecking="no")
 
     return changed
 

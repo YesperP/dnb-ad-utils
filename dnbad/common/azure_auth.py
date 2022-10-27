@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import *
 
-from pyppeteer.page import Page, Request
+from pyppeteer.page import Page
 
 from .azure_auth_handler import *
 from .pyppeteer import PypBrowser
@@ -33,7 +33,6 @@ class AuthConfig:
         return AuthConfig(
             headless=not args.no_headless,
             use_cookies=not args.no_cookies,
-            dump_io=False,
             keep_open=args.keep_open
         )
 

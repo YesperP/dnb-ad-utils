@@ -18,23 +18,26 @@ PERSIST_RETRY_TIME = 30
 
 
 @dataclasses.dataclass
-class Host:
+class HostForward:
+    local_hostname: str
+    local_port: int
     hostname: str
     port: int
 
 
 @dataclasses.dataclass
-class SshHost(Host):
+class SshHost:
+    hostname: str
+    port: int
     default_local_port: int
 
 
 SSH_HOSTS = [
-    SshHost("git.tech-01.net", 22, 9000),
-    SshHost("gitlab.tech.dnb.no", 2222, 2222)
+    SshHost("git.tech-01.net", port=22, default_local_port=9000),
+    SshHost("gitlab.tech.dnb.no", port=2222, default_local_port=2222)
 ]
 STATUS_TEST_HOST = SSH_HOSTS[0].hostname
 
-HOSTS: List[Host] = [
-    Host("nexus.tech.dnb.no", 443),
-    Host("nexus.tech.dnb.no", 18443)
-] + SSH_HOSTS
+FORWARD_HOSTS: List[HostForward] = [
+    HostForward("localhost", 443, "nexus.tech.dnb.no", 443),
+]

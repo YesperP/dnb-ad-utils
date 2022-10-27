@@ -6,7 +6,7 @@ from dnbad.common.azure_auth import AuthConfig
 from dnbad.common.cli_base import *
 from dnbad.common.local_config import LocalConfig
 from dnbad.common.password_manager import PasswordManager
-from dnbad.gproxy.constants import PERSIST_POLL_TIME, PERSIST_RETRY_TIME, BIND_HOST
+from dnbad.gproxy.constants import *
 from dnbad.gproxy.configure import configure
 from dnbad.gproxy.gproxy import GProxy, GProxyError
 
@@ -58,7 +58,11 @@ def connect(args):
         g_proxy.connect(PasswordManager(config.username), AuthConfig.from_args(args))
         connected = g_proxy.is_connected()
         if connected:
-            print(f"You can now connect to {BIND_HOST} through the proxy.")
+            host_list = "\n ".join(
+                f'{h.local_hostname}:{h.local_port} => {h.hostname}:{h.port}'
+                for h in g_proxy.get_forward_hosts()
+            )
+            print(f"Tunnels setup for\n {host_list}\nthrough the proxy.")
         else:
             print("Something went wrong and the connection could not be established.")
 

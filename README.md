@@ -22,11 +22,16 @@ The forward is through a secure server, where the AzureAD login is used to authe
 ## Installation
 Recommended: With password management (stores password in OS keystore).
 
-    $ pip install "git+https://github.com/YesperP/dnb-ad-utils.git#egg=dnb-ad-utils [keyring]"
+    $ pip3 install "git+https://github.com/YesperP/dnb-ad-utils.git#egg=dnb-ad-utils [keyring]"
 
 Minimal:
 
-    $ pip install git+https://github.com/YesperP/dnb-ad-utils.git
+    $ pip3 install git+https://github.com/YesperP/dnb-ad-utils.git
+
+Local:
+
+    $ cd <project_dir>
+    $ pip3 install .
 
 ## Requirements
 * Python 3.7+

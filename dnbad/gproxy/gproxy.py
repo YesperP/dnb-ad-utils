@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 import subprocess
@@ -30,6 +31,13 @@ class GProxy:
     def _host():
         return f"ssh://{SSH_USER}@{GPROXY_HOSTNAME}:{GPROXY_PORT}"
 
+    def get_forward_hosts(self) -> List[HostForward]:
+        hosts = []
+        for host in SSH_HOSTS:
+            config = self.ssh_config.host(host.hostname)
+            hosts.append(HostForward(config['hostname'], config['port'], host.hostname, host.port))
+        return hosts + FORWARD_HOSTS
+
     def _connect_args(self):
         options = [
             "-fNT",
@@ -37,10 +45,8 @@ class GProxy:
             "-o", "ControlMaster auto",
             "-o", "ControlPersist yes",
         ]
-        for host in HOSTS:
-            config = self.ssh_config.host(host.hostname)
-            options.extend(["-L", f"{config['hostname']}:{config['port']}:{host.hostname}:{host.port}"])
-
+        for host in self.get_forward_hosts():
+            options.extend(["-L", f"{host.local_hostname}:{host.local_port}:{host.hostname}:{host.port}"])
         return options + [self._host()]
 
     def connect(self, password_manager: PasswordManager, azure_ad_config: AuthConfig):
@@ -81,12 +87,12 @@ class GProxy:
         if url != GProxyAdLogin.URL:
             raise GProxyError(f"Url does not match expected login-url. !={GProxyAdLogin.URL}")
 
-        GProxyAdLogin(
+        gproxy_login = GProxyAdLogin(
             code=code,
             password_manager=password_manager,
             config=azure_ad_config
-        ).login_sync()
-
+        )
+        asyncio.get_event_loop().run_until_complete(gproxy_login.login())
         p.expect(pexpect.EOF, timeout=30)
 
     @staticmethod

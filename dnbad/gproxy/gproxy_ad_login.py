@@ -22,6 +22,7 @@ class GProxyAdLogin:
 
     async def login(self):
         async with single_auth_page(self.auth_handler, self.config) as auth_page:
+            LOG.info(f"Navigating to: {self.URL}")
             await auth_page.page.goto(self.URL)
             await auth_page.await_auth()
 
@@ -43,5 +44,7 @@ class GProxyAzureAuthHandler(AzureAuthHandler):
             await self._submit_value(page, "input[name=otc]", self.code)
             self.code_submitted = True
             LOG.info("GProxy code submitted")
+        elif s == self.STATE_TRYING_TO_SIGN_GIT_PROXY:
+            await page.keyboard.press("Enter")
         else:
             await super()._on_state_changed(page, s)

@@ -66,6 +66,7 @@ class AzureAuthHandler:
 
     # Text to phone and code in app
     STATE_OTC_CODE = AuthState("Enter code", timeout=TIMEOUT_MFA)
+    STATE_TRYING_TO_SIGN_GIT_PROXY = AuthState("Are you trying to sign in to GitProxy?")
 
     END_STATES = (STATE_MFA, STATE_OTC_CODE)
 
